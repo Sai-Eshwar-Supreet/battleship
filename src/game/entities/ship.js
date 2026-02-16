@@ -8,6 +8,9 @@ class Ship {
 
   /** @type {number} */
   #hitCount;
+  
+  /** @type {string} */
+  #id;
 
   /**
    * Creates a new Ship.
@@ -22,6 +25,16 @@ class Ship {
 
     this.#length = length;
     this.#hitCount = 0;
+    this.#id = crypto.randomUUID();
+  }
+
+  /**
+   * Unique ship id.
+   *
+   * @returns {string}
+   */
+  get id() {
+    return this.#id;
   }
 
   /**
