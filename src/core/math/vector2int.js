@@ -162,14 +162,15 @@ class Vector2Int {
    * @param {Vector2Int} max - Maximum corner (inclusive)
    * @returns {boolean}
    * @throws {TypeError} If either argument is not a Vector2Int
+   * @throws {RangeError} If min x and y are greater than max x and y respectively
    */
   isWithin(min, max) {
     if (!Vector2Int.isValid(min) || !Vector2Int.isValid(max)) {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
     }
 
-    if(min.x > max.x || min.y > max.y){
-      throw new RangeError('min x and y should be lesser than max x and y respectively');
+    if(min.#x > max.#x || min.#y > max.#y){
+      throw new RangeError('Invalid bounds: min must be <= max');
     }
 
     return this.#x >= min.#x && this.#x <= max.#x && this.#y >= min.#y && this.#y <= max.#y;
@@ -182,14 +183,15 @@ class Vector2Int {
    * @param {Vector2Int} max - Maximum allowed coordinates
    * @returns {Vector2Int}
    * @throws {TypeError} If either argument is not a Vector2Int
+   * @throws {RangeError} If min x and y are greater than max x and y respectively
    */
   clamp(min, max) {
     if (!Vector2Int.isValid(min) || !Vector2Int.isValid(max)) {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
     }
 
-    if(min.x > max.x || min.y > max.y){
-      throw new RangeError('min x and y should be lesser than max x and y respectively');
+    if(min.#x > max.#x || min.#y > max.#y){
+      throw new RangeError('Invalid bounds: min must be <= max');
     }
 
     return new Vector2Int(
