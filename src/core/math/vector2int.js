@@ -15,7 +15,7 @@ class Vector2Int {
    *
    * @param {number} x - X-coordinate (must be an integer)
    * @param {number} y - Y-coordinate (must be an integer)
-   * @throws If either argument is not an integer
+   * @throws {TypeError} If either argument is not an integer
    */
   constructor(x, y) {
     if (!Number.isInteger(x) || !Number.isInteger(y)) {
@@ -48,7 +48,7 @@ class Vector2Int {
    * @returns {string}
    */
   toString() {
-    return `{ x: ${this.#x}, y: ${this.#y} }`;
+    return `(${this.#x}, ${this.#y})`;
   }
 
   /**
@@ -85,7 +85,7 @@ class Vector2Int {
    *
    * @param {Vector2Int} vector - Vector to add
    * @returns {Vector2Int}
-   * @throws If the argument is not a Vector2Int
+   * @throws {TypeError} If the argument is not a Vector2Int
    */
   add(vector) {
     if (!Vector2Int.isValid(vector)) {
@@ -99,7 +99,7 @@ class Vector2Int {
    *
    * @param {Vector2Int} vector - Vector to subtract
    * @returns {Vector2Int}
-   * @throws If the argument is not a Vector2Int
+   * @throws {TypeError} If the argument is not a Vector2Int
    */
   subtract(vector) {
     if (!Vector2Int.isValid(vector)) {
@@ -113,7 +113,7 @@ class Vector2Int {
    *
    * @param {number} s - Integer scale factor
    * @returns {Vector2Int}
-   * @throws If the scale factor is not an integer
+   * @throws {TypeError} If the scale factor is not an integer
    */
   scale(s) {
     if (!Number.isInteger(s)) {
@@ -146,7 +146,7 @@ class Vector2Int {
    *
    * @param {Vector2Int} other - Target vector
    * @returns {number}
-   * @throws If the argument is not a Vector2Int
+   * @throws {TypeError} If the argument is not a Vector2Int
    */
   distanceTo(other) {
     if (!Vector2Int.isValid(other)) {
@@ -161,7 +161,7 @@ class Vector2Int {
    * @param {Vector2Int} min - Minimum corner (inclusive)
    * @param {Vector2Int} max - Maximum corner (inclusive)
    * @returns {boolean}
-   * @throws If either argument is not a Vector2Int
+   * @throws {TypeError} If either argument is not a Vector2Int
    */
   isWithin(min, max) {
     if (!Vector2Int.isValid(min) || !Vector2Int.isValid(max)) {
@@ -177,7 +177,7 @@ class Vector2Int {
    * @param {Vector2Int} min - Minimum allowed coordinates
    * @param {Vector2Int} max - Maximum allowed coordinates
    * @returns {Vector2Int}
-   * @throws If either argument is not a Vector2Int
+   * @throws {TypeError} If either argument is not a Vector2Int
    */
   clamp(min, max) {
     if (!Vector2Int.isValid(min) || !Vector2Int.isValid(max)) {
@@ -224,7 +224,7 @@ class Vector2Int {
    * @param {Vector2Int} a
    * @param {Vector2Int} b
    * @returns {number}
-   * @throws If either argument is not a Vector2Int
+   * @throws {TypeError} If either argument is not a Vector2Int
    */
   static dot(a, b) {
     if (!Vector2Int.isValid(a) || !Vector2Int.isValid(b)) {
