@@ -1,8 +1,33 @@
 import { Vector2Int } from "../../../core/math/vector2int";
 
+describe('Frozen Vector2Int', () => {
+  test.each([
+    ['Vector2Int class', Vector2Int],
+    ['Vector2Int.origin', Vector2Int.origin],
+    ['Vector2Int.one', Vector2Int.one],
+    ['Vector2Int.up', Vector2Int.up],
+    ['Vector2Int.down', Vector2Int.down],
+    ['Vector2Int.left', Vector2Int.left],
+    ['Vector2Int.right', Vector2Int.right]
+  ])('%s is frozen', (_, obj) => {
+    expect(Object.isFrozen(obj)).toBe(true);
+  });
+  
+});
+
+
 describe('Vector2Int creation', () => {
   test.each([[undefined, 0], [1, undefined], [NaN, '3'], [0.25, 1]])('should throw for [%p, %p]', (x, y) => {
     expect(() => new Vector2Int(x, y)).toThrow(TypeError);
+  });
+});
+
+describe('Vector2Int validity check', () => {
+  test.each([
+    [new Vector2Int(1,2), true], 
+    [{x:1,y:2}, false], 
+    [null, false]])('is %s valid: %p', (input, result) => {
+        expect(Vector2Int.isValid(input)).toBe(result);
   });
 });
 
@@ -40,22 +65,24 @@ describe('Vector2Int conversion APIs', () => {
 
 describe('Vector2Int Immutability', () => {
   test('should be immutable on addition', () => {
-    const vector = new Vector2Int(1,2);
-    const oldValue = vector.toString();
-    vector.add(vector);
-    expect(oldValue).toBe(vector.toString());
+    const a = new Vector2Int(1,2);
+    const b = new Vector2Int(2,1);
+    const result = a.add(b);
+    expect(a).not.toBe(result);
+    expect(a.equals(new Vector2Int(1,2))).toBe(true);
   });
   test('should be immutable on subtraction', () => {
-    const vector = new Vector2Int(1,2);
-    const oldValue = vector.toString();
-    vector.subtract(vector);
-    expect(oldValue).toBe(vector.toString());
+    const a = new Vector2Int(1,2);
+    const b = new Vector2Int(2,1);
+    const result = a.subtract(b);
+    expect(a).not.toBe(result);
+    expect(a.equals(new Vector2Int(1,2))).toBe(true);
   });
   test('should be immutable on scaling', () => {
-    const vector = new Vector2Int(1,2);
-    const oldValue = vector.toString();
-    vector.scale(5);
-    expect(oldValue).toBe(vector.toString());
+    const a = new Vector2Int(1,2);
+    const result = a.scale(5);
+    expect(a).not.toBe(result);
+    expect(a.equals(new Vector2Int(1,2))).toBe(true);
   });
 });
 
@@ -69,6 +96,11 @@ describe('Vector2Int comparison', () => {
     const a = new Vector2Int(1,2);
     const b = new Vector2Int(1,2);
     expect(a.equals(b)).toBe(true);
+  });
+
+  test.each([null, {x: 1, y: 2}])('invalid vector inputs return false', (input) => {
+    const vector = new Vector2Int(1,2);
+    expect(vector.equals(input)).toBe(false);
   });
 });
 
@@ -87,7 +119,7 @@ describe('Vector2Int addition', () => {
     ];
     
   test.each(inputs)('%s + %s = %s ', (a, b, result) => {
-    expect(a.add(b).toString()).toBe(result.toString());
+    expect(a.add(b)).toEqual(result);
   });
 
   test('throws when input is not Vector2Int', () => {
@@ -112,7 +144,7 @@ describe('Vector2Int subtraction', () => {
     ];
     
   test.each(inputs)('%s - %s = %s ', (a, b, result) => {
-    expect(a.subtract(b).toString()).toBe(result.toString());
+    expect(a.subtract(b)).toEqual(result);
   });
 
   test('throws when input is not Vector2Int', () => {
@@ -139,10 +171,15 @@ describe('Vector2Int scale', () => {
             -1,
             new Vector2Int(-1,-1)
         ],
+        [
+            Vector2Int.one,
+            0,
+            Vector2Int.origin
+        ],
     ];
     
   test.each(inputs)('%s x %p = %s ', (vector, scale, result) => {
-    expect(vector.scale(scale).toString()).toBe(result.toString());
+    expect(vector.scale(scale)).toEqual(result);
   });
 
   test.each([NaN, 1.5, undefined, '3'])('throws when input is %p', (scale) => {
@@ -163,11 +200,11 @@ describe('Vector2Int negate', () => {
     ];
     
   test.each(inputs)('-%s = %s ', (vector, result) => {
-    expect(vector.negate().toString()).toBe(result.toString());
+    expect(vector.negate()).toEqual(result);
   });
 });
 
-describe('Vector2Int Utilities', () => {
+describe('Vector2Int metrics', () => {
   test.each([[55,21,76], [32,54,86]])('manhattan length of (%p, %p) is %p', (x, y, length) => {
     expect(new Vector2Int(x, y).manhattanLength).toBe(length);
   });
@@ -179,7 +216,10 @@ describe('Vector2Int Utilities', () => {
     expect(pointA.distanceTo(pointB)).toBe(length);
     expect(pointB.distanceTo(pointA)).toBe(length);
   });
+});
 
+
+describe('Vector2Int spatial queries', () => {
   test.each([
     [[0,0], [2,2], [1,2], true], 
     [[0,0], [1,2], [5,2], false], 
@@ -195,14 +235,25 @@ describe('Vector2Int Utilities', () => {
   test.each([
     [[0,0], [2,2], [1,2], [1,2]], 
     [[0,0], [10,2], [5,5], [5,2]], 
-    [[-10,-5], [1,10], [-1,-10], [-1, -5]]])('does %s and %s contain %s: %p',
+    [[-10,-5], [1,10], [-1,-10], [-1, -5]]])('bounds %s and %s clamp %s to %s',
         (min, max, point, result) => {
             const minBound = new Vector2Int(min[0], min[1]);
             const maxBound = new Vector2Int(max[0], max[1]);
             const vector = new Vector2Int(point[0], point[1]);
             const resultVector = new Vector2Int(result[0], result[1]);
 
-            expect(vector.clamp(minBound, maxBound).toString()).toBe(resultVector.toString());
+            expect(vector.clamp(minBound, maxBound)).toEqual(resultVector);
+        }
+    );
+
+    test('Improper bounds throw RangeError',
+        () => {
+            const vector = new Vector2Int(2,2);
+            const minBound = new Vector2Int(5,5);
+            const maxBound = new Vector2Int(1,1);
+
+            expect(() => vector.clamp(minBound, maxBound)).toThrow(RangeError);
+            expect(() => vector.isWithin(minBound, maxBound)).toThrow(RangeError);
         }
     );
 });
