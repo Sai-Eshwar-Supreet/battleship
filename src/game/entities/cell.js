@@ -1,32 +1,32 @@
-import { assertEnum } from "../../core/validation/enum-validation";
+import { assertEnum } from '../../core/validation/enum-validation';
 
-class Cell{
-    #occupiedShipId;
-    #state;
+class Cell {
+  #occupiedShipId;
+  #state;
 
-    constructor(){
-        this.#occupiedShipId = null;
-        this.#state = Cell.cellState.clean;
-    }
+  constructor() {
+    this.#occupiedShipId = null;
+    this.#state = Cell.cellState.clean;
+  }
 
-    get occupiedShipId() {
-        return this.#occupiedShipId;
-    }
+  get occupiedShipId() {
+    return this.#occupiedShipId;
+  }
 
-    get state(){
-        return this.#state;
-    }
+  get state() {
+    return this.#state;
+  }
 
-    set state(value){
-        assertEnum(Cell.cellState, value, 'Cell State');
-        this.#state = value;
-    }
+  set state(value) {
+    assertEnum(Cell.cellState, value, 'Cell State');
+    this.#state = value;
+  }
 
-    static cellState = Object.freeze({
-        hit: 'hit',
-        miss: 'miss',
-        clean: 'clean'
-    });
+  static cellState = Object.freeze({
+    hit: 'hit',
+    miss: 'miss',
+    clean: 'clean',
+  });
 }
 
-export { Cell }
+export { Cell };

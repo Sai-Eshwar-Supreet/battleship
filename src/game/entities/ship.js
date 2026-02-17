@@ -8,7 +8,7 @@ class Ship {
 
   /** @type {number} */
   #hitCount;
-  
+
   /** @type {string} */
   #id;
 
