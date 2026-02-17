@@ -168,6 +168,10 @@ class Vector2Int {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
     }
 
+    if(min.x > max.x || min.y > max.y){
+      throw new RangeError('min x and y should be lesser than max x and y respectively');
+    }
+
     return this.#x >= min.#x && this.#x <= max.#x && this.#y >= min.#y && this.#y <= max.#y;
   }
 
@@ -182,6 +186,10 @@ class Vector2Int {
   clamp(min, max) {
     if (!Vector2Int.isValid(min) || !Vector2Int.isValid(max)) {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
+    }
+
+    if(min.x > max.x || min.y > max.y){
+      throw new RangeError('min x and y should be lesser than max x and y respectively');
     }
 
     return new Vector2Int(
