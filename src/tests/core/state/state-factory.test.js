@@ -1,6 +1,6 @@
 import { createState } from "../../../core/state/state-factory";
 
-describe('State creation', () => {
+describe('State factory: state creation', () => {
   test.each([1, undefined, null, [], {}])('should throw when type is %p', (type) => {
     expect(() => createState(type, {enter() {}})).toThrow(TypeError);
   });

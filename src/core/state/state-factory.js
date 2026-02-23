@@ -1,13 +1,11 @@
-function createState(type, { enter, exit, update }) {
-  if (typeof type !== 'string') {
-    throw new TypeError('State type must be a string');
-  }
+import { State } from "./state";
 
+function createState(type, { enter, exit, update }) {
   if (typeof enter !== 'function') {
     throw new Error(`State ${type} must implement enter()`);
   }
 
-  return Object.freeze({ type, enter, exit, update, toString: () => type });
+  return Object.freeze(Object.assign(new State(type), {enter, exit, update}));
 }
 
 export { createState };
