@@ -1,31 +1,44 @@
-import { assertEnum } from '../../core/validation/enum-validation';
+import { assertEnum } from '../../core/validation/enum-validation.js';
 
 class Cell {
   #occupiedShipId;
-  #state;
+  #flag;
 
   constructor() {
     this.#occupiedShipId = null;
-    this.#state = Cell.cellState.clean;
+    this.#flag = Cell.cellFlag.empty;
   }
 
   get occupiedShipId() {
     return this.#occupiedShipId;
   }
 
-  get state() {
-    return this.#state;
+  set occupiedShipId(value){
+    if(typeof value !== 'string'){
+      throw new TypeError('Expects ship id to be a string');
+    }
+
+    this.#occupiedShipId = value;
   }
 
-  set state(value) {
-    assertEnum(Cell.cellState, value, 'Cell State');
-    this.#state = value;
+  get flag() {
+    return this.#flag;
   }
 
-  static cellState = Object.freeze({
+  set flag(value) {
+    assertEnum(Cell.cellFlag, value, 'Cell Flag');
+    this.#flag = value;
+  }
+
+  reset(){
+    this.#occupiedShipId = null;
+    this.#flag = Cell.cellFlag.empty;
+  }
+
+  static cellFlag = Object.freeze({
     hit: 'hit',
     miss: 'miss',
-    clean: 'clean',
+    empty: 'empty',
   });
 }
 
