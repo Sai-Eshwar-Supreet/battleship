@@ -1,9 +1,14 @@
-import { eventBus } from "../../../core/events/event-bus.js";
-import { Vector2Int } from "../../../core/math/vector2int.js";
-import { Player } from "../../../game/entities/player/player.js";
-import humanInputStrategy from "../../../game/entities/player/strategies/human-input-strategy.js";
+import { eventBus } from "../../../../core/events/event-bus.js";
+import { Vector2Int } from "../../../../core/math/vector2int.js";
+import { Player } from "../../../../game/entities/player/player.js";
+import humanInputStrategyFactory from "../../../../game/entities/player/strategies/human-input-strategy.js";
 
 describe('Player: creation', () => {
+
+  let humanInputStrategy;
+
+  beforeEach(() => humanInputStrategy = humanInputStrategyFactory?.())
+
   test('should throw when player name is not a string', () => {
     expect(() => new Player(undefined, Player.type.human, humanInputStrategy)).toThrow(TypeError);
     expect(() => new Player(null, Player.type.human, humanInputStrategy)).toThrow(TypeError);
@@ -26,18 +31,23 @@ describe('Player: creation', () => {
   });  
 });
 
-describe('Player: Get attack position (getAttackPosition)', () => {
+describe('Player: request move (requestMove)', () => {
+
+  let humanInputStrategy;
+
+  beforeEach(() => humanInputStrategy = humanInputStrategyFactory?.())
   afterEach(() => eventBus.clear());
 
   test('should return the position on player input', async () => {
     const player = new Player('Human', Player.type.human, humanInputStrategy);
-
-    const promise  = player.getAttackPosition();
     
-    eventBus.emit('HUMAN_ATTACK_INPUT', position);
+    const promise  = player.requestMove();
+    
+    const expected = Vector2Int.one;
+    eventBus.emit('HUMAN_ATTACK_INPUT', expected);
 
     const position = await promise;    
 
-    expect(position.equals(Vector2Int.one)).toBe(true);
+    expect(position.equals(expected)).toBe(true);
 });
 });

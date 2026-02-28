@@ -33,14 +33,14 @@ class Player{
     }
 
     setStrategy(strategy){
-        if (!strategy || typeof strategy.getAttackPosition !== 'function') {
+        if (!strategy || typeof strategy.requestMove !== 'function' || typeof strategy.onAttackResult !== 'function') {
             throw new TypeError('Invalid attack strategy');
         }
         this.#strategy = strategy;
     }
 
-    async getAttackPosition(){
-        return await this.#strategy.getAttackPosition();
+    async requestMove(){
+        return await this.#strategy.requestMove();
     }
 
     static type = Object.freeze({
