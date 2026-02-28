@@ -27,7 +27,9 @@ describe('Player: creation', () => {
     expect(() => new Player("Human", Player.type.human, undefined)).toThrow(TypeError);
     expect(() => new Player("Human", Player.type.human, [])).toThrow(TypeError);
     expect(() => new Player("Human", Player.type.human, {})).toThrow(TypeError);
-    expect(() => new Player("Human", Player.type.human, {getAttackPosition: 123})).toThrow(TypeError);
+    expect(() => new Player("Human", Player.type.human, {requestMove: 123})).toThrow(TypeError);
+    expect(() => new Player("Human", Player.type.human, {requestMove: () => {}})).toThrow(TypeError);
+    expect(() => new Player("Human", Player.type.human, {requestMove: undefined, onAttackResult: () => {}})).toThrow(TypeError);
   });  
 });
 
