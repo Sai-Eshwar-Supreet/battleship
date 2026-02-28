@@ -1,6 +1,6 @@
 /**
- * Represents an immutable 2D integer vector using an HTML-style coordinate system
- * where +x points right and +y points down.
+ * Represents an immutable 2D integer vector 
+ * where +x points right and +y points up.
  */
 
 class Vector2Int {
@@ -223,10 +223,10 @@ class Vector2Int {
   static left = Object.freeze(new Vector2Int(-1, 0));
 
   /** @type {Vector2Int} (0, -1) */
-  static up = Object.freeze(new Vector2Int(0, -1));
+  static up = Object.freeze(new Vector2Int(0, 1));
 
   /** @type {Vector2Int} (0, 1) */
-  static down = Object.freeze(new Vector2Int(0, 1));
+  static down = Object.freeze(new Vector2Int(0, -1));
 
   /**
    * Computes the dot product of two vectors.
