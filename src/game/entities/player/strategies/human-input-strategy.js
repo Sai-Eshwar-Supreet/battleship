@@ -18,5 +18,5 @@ export default function createHumanInputStrategy(){
         // noop
     }
 
-    return {requestMove, onAttackResult};
+    return Object.freeze({requestMove, onAttackResult});
 }
