@@ -15,17 +15,22 @@ class Ship {
   /**
    * Creates a new Ship.
    *
-   * @param {number} length - The length of the ship (must be a positive integer)
-   * @throws If length is not a positive integer
+   * @param {{ id: string, length: number }} option
+   * @throws {TypeError} If length is not a positive integer
+   * @throws {TypeError} If id is not a string
    */
-  constructor(length) {
+  constructor({id, length} = {}) {
     if (!Number.isInteger(length) || length <= 0) {
       throw new TypeError('Ship length must be a positive integer');
     }
 
+    if(typeof id !== 'string'){
+      throw new TypeError('Ship id must be a string');
+    }
+
     this.#length = length;
     this.#hitCount = 0;
-    this.#id = crypto.randomUUID();
+    this.#id = id;
   }
 
   /**

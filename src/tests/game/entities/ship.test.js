@@ -2,7 +2,7 @@ import { Ship } from '../../../game/entities/ship.js';
 
 describe('Ship construction', () => {
   test('Create ship with valid states', () => {
-    let ship = new Ship(3);
+    let ship = new Ship({id: 'Test ship', length: 3});
     expect(ship.length).toBe(3);
     expect(ship.hitCount).toBe(0);
     expect(ship.health).toBe(1);
@@ -10,14 +10,18 @@ describe('Ship construction', () => {
   });
 
   test.each([0, -1, 1.5, NaN, '2', Infinity])('throws for invalid length %p', (length) => {
-    expect(() => new Ship(length)).toThrow(TypeError);
+    expect(() => new Ship({id:'Test ship', length})).toThrow(TypeError);
+  });
+
+  test.each([0, null, undefined, {}, []])('throws for invalid id %p', (id) => {
+    expect(() => new Ship({id, length: 2})).toThrow(TypeError);
   });
 });
 
 describe('Ship hit behavior', () => {
   let ship;
 
-  beforeEach(() => (ship = new Ship(2)));
+  beforeEach(() => (ship = new Ship({id: 'Test ship', length: 2})));
 
   test('hit increases hitcount', () => {
     ship.hit();
@@ -60,7 +64,7 @@ describe('Ship hit behavior', () => {
 describe('Ship invariants', () => {
   let ship;
 
-  beforeEach(() => (ship = new Ship(2)));
+  beforeEach(() => (ship = new Ship({id: 'Test ship', length: 2})));
 
   test('hitcount is capped at length', () => {
     for (let i = 0; i < ship.length + 5; i++) {
