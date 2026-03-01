@@ -1,10 +1,11 @@
-import { Vector2Int } from "../../../../../core/math/vector2int";
-import { RNG } from "../../../../../core/random/rng";
-import { assertEnum } from "../../../../../core/validation/enum-validation";
+import { Vector2Int } from "../../../../core/math/vector2int";
+import { RNG } from "../../../../core/random/rng";
+import { GameClock } from "../../../../core/time/game-clock";
+import { assertEnum } from "../../../../core/validation/enum-validation";
 import { Cell } from "../../../cell";
 
 
-export default function createHuntTargetStrategy({width, height, seed = Date.now()}){
+export default function createHuntTargetStrategy({width, height, difficultyConfig, seed = Date.now()}){
     if (!Number.isInteger(width) || width <= 0) {
         throw new TypeError('Invalid board width');
     }
@@ -15,7 +16,9 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
     const minBound = Vector2Int.origin;
     const maxBound = new Vector2Int(width - 1, height - 1);
     const rng = new RNG(seed);
+    const gameClock = new GameClock();
 
+    // untried cells and hunt queue
     const untried = new Set();
     
     for(let x = 0; x < width; x++){
@@ -28,12 +31,13 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
     const evenQueue = rng.shuffle(allKeys.values()).filter(k => parityOf(k) === 0);
     const oddQueue = rng.shuffle(allKeys.values()).filter(k => parityOf(k) !== 0);
 
+    // targeting state
     let anchor = null;
     let targets = null;
     let searchDirection = null;
-
+    let missTolerance = 0;
+    
     // helpers
-
     function createKey(x, y){
         return `${x},${y}`;
     }
@@ -52,8 +56,10 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
         return (x + y) % 2;
     }
 
-    function isTargeting(){
-        return targets !== null;
+    function shouldTarget(){
+        return targets?.length > 0 
+            && difficultyConfig.targeting.canTarget 
+            && rng.next() < difficultyConfig.targeting.accuracy;
     }
 
     function neighborsOf(vec) {
@@ -79,10 +85,17 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
         return chain;
     }
         
-    function buildCandidates(secondHit){
+    function buildTargets(secondHit){
         const forward = buildChain(anchor, searchDirection);
         const backward = buildChain(secondHit, searchDirection.negate());
         return [...forward, ...backward];
+    }
+    
+    function resetTargeting(){
+        anchor = null;
+        targets = null;
+        searchDirection = null;
+        missTolerance = 0;
     }
 
     function popHunt(){
@@ -99,7 +112,7 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
         throw new Error('No moves remaining');
     }
 
-    function popCandidate(){
+    function popTarget(){
         while(targets.length > 0){
             const key = targets.shift();
 
@@ -109,23 +122,41 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
             }
         }
 
-        reset();
+        resetTargeting();
         return popHunt();
     }
     
     function requestMove(){
-        const move = isTargeting()? popCandidate() : popHunt();
-        return Promise.resolve(move);
+        const promise = new Promise((resolve) => {
+            const delay = rng.nextFloat(difficultyConfig.timing.minDelayMs, difficultyConfig.timing.maxDelayMs);
+            
+            function callback(){
+                const move = shouldTarget()? popTarget() : popHunt();
+                resolve(move);
+            }
+
+            gameClock.delay(delay, callback);
+        });
+
+        return promise;
     }
 
     function onHit(_move){
-        if(anchor === null){
+        if(!difficultyConfig.memory.rememberShots){
+            return;
+        }
+        
+        // successful hit resets patience
+        missTolerance = 0;
+
+        // update memory
+        if(anchor === null){ // first hit determines anchor
             anchor = _move;
             targets = rng.shuffle(neighborsOf(anchor).filter(k => untried.has(k)));
             return;
         }
         
-        if(searchDirection === null){
+        if(searchDirection === null){ // second hit determines direction
             const delta = _move.subtract(anchor);
 
             if(Math.abs(delta.x) + Math.abs(delta.y) !== 1) {
@@ -133,7 +164,19 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
             }
 
             searchDirection = new Vector2Int(Math.sign(delta.x), Math.sign(delta.y));
-            targets = buildCandidates(_move);
+            targets = buildTargets(_move);
+            return;
+        }
+    }
+
+    function onMiss(){
+        if(!shouldTarget()) {
+            return;
+        }
+
+        missTolerance++;
+        if(missTolerance > difficultyConfig.memory.maxMissTolerance){
+            resetTargeting();
         }
     }
 
@@ -146,13 +189,9 @@ export default function createHuntTargetStrategy({width, height, seed = Date.now
 
         if(_result === Cell.cellFlag.hit){
             onHit(_move);
+        }else if(_result === Cell.cellFlag.miss){
+            onMiss();
         }
-    }
-
-    function reset(){
-        anchor = null;
-        targets = null;
-        searchDirection = null;
     }
 
     return Object.freeze({requestMove, onAttackResult});
