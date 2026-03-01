@@ -1,8 +1,8 @@
-import { Vector2Int } from "../../../../core/math/vector2int";
-import { RNG } from "../../../../core/random/rng";
-import { GameClock } from "../../../../core/time/game-clock";
-import { assertEnum } from "../../../../core/validation/enum-validation";
-import { Cell } from "../../../cell";
+import { Vector2Int } from "../../../../core/math/vector2int.js";
+import { RNG } from "../../../../core/random/rng.js";
+import { GameClock } from "../../../../core/time/game-clock.js";
+import { assertEnum } from "../../../../core/validation/enum-validation.js";
+import { Cell } from "../../../entities/cell.js";
 
 
 export default function createHuntTargetStrategy({width, height, difficultyConfig, seed = Date.now()}){
@@ -28,8 +28,8 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
     }
 
     const allKeys = Array.from(untried.values());
-    const evenQueue = rng.shuffle(allKeys.values()).filter(k => parityOf(k) === 0);
-    const oddQueue = rng.shuffle(allKeys.values()).filter(k => parityOf(k) !== 0);
+    const evenQueue = rng.shuffle(allKeys.filter(k => parityOf(k) === 0));
+    const oddQueue = rng.shuffle(allKeys.filter(k => parityOf(k) !== 0));
 
     // targeting state
     let anchor = null;
@@ -128,7 +128,7 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
     
     function requestMove(){
         const promise = new Promise((resolve) => {
-            const delay = rng.nextFloat(difficultyConfig.timing.minDelayMs, difficultyConfig.timing.maxDelayMs);
+            const delay = rng.nextInt(difficultyConfig.timing.minDelayMs, difficultyConfig.timing.maxDelayMs);
             
             function callback(){
                 const move = shouldTarget()? popTarget() : popHunt();

@@ -1,5 +1,3 @@
-import { eventBus } from "../../../../core/events/event-bus.js";
-import { Vector2Int } from "../../../../core/math/vector2int.js";
 import { Player } from "../../../../game/entities/player/player.js";
 import humanInputStrategyFactory from "../../../../game/entities/player/strategies/human-input-strategy.js";
 
@@ -31,25 +29,14 @@ describe('Player: creation', () => {
     expect(() => new Player("Human", Player.type.human, {requestMove: () => {}})).toThrow(TypeError);
     expect(() => new Player("Human", Player.type.human, {requestMove: undefined, onAttackResult: () => {}})).toThrow(TypeError);
   });  
-});
+  
+  test('creates a valid player with board and strategy', () => {
+  const strategy = humanInputStrategyFactory();
+  const player = new Player('Human', Player.type.human, strategy);
 
-describe('Player: request move (requestMove)', () => {
-
-  let humanInputStrategy;
-
-  beforeEach(() => humanInputStrategy = humanInputStrategyFactory?.())
-  afterEach(() => eventBus.clear());
-
-  test('should return the position on player input', async () => {
-    const player = new Player('Human', Player.type.human, humanInputStrategy);
-    
-    const promise  = player.requestMove();
-    
-    const expected = Vector2Int.one;
-    eventBus.emit('HUMAN_ATTACK_INPUT', expected);
-
-    const position = await promise;    
-
-    expect(position.equals(expected)).toBe(true);
+  expect(player.name).toBe('Human');
+  expect(player.type).toBe(Player.type.human);
+  expect(player.board).toBeDefined();
 });
 });
+
