@@ -3,6 +3,54 @@ import { GameBoard } from '../../../game/entities/gameboard.js';
 import { Ship } from '../../../game/entities/ship.js';
 
 
+describe('GameBoard: Can place ship (canPlaceShip)', () => {
+
+  const gameBoard = new GameBoard();
+
+  beforeEach(() => gameBoard.reset());
+
+  test('Throws for invalid origin', () => {
+    expect(() => gameBoard.canPlaceShip('0,0', Vector2Int.right, 5)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip([0, 0], Vector2Int.right, 5)).toThrow(TypeError);
+  });
+
+  test('Throws for invalid direction', () => {
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, '0,0', 5)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, [0, 0], 5)).toThrow(TypeError);
+  });
+
+  test('Throws for non cardinal direction', () => {
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.one, 5)).toThrow(Error);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right.scale(2), 5)).toThrow(Error);
+  });
+
+  test('Throws for invalid length', () => {
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, 0)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, -1)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, Infinity)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, NaN)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, 1.5)).toThrow(TypeError);
+    expect(() => gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, '4')).toThrow(TypeError);
+  });
+
+  test('should handle in-bounds and out-of-bounds attacks correctly', () => {
+    expect(gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, 3)).toBe(true);
+    expect(gameBoard.canPlaceShip(new Vector2Int(9,9), Vector2Int.up, 3)).toBe(false);
+  });
+
+  test('should return false if ship placement collides with another ship', () => {
+    const configA = {id: 'Test ship 1', length: 2};
+
+    expect(gameBoard.placeShip(new Ship(configA), Vector2Int.origin, Vector2Int.right)).toBe(true);
+    expect(gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.up, 3)).toBe(false);
+  });
+
+  test('should return true if ship placement is valid', () => {
+    expect(gameBoard.canPlaceShip(Vector2Int.origin, Vector2Int.right, 2)).toBe(true);
+    expect(gameBoard.canPlaceShip(Vector2Int.one, Vector2Int.up, 2)).toBe(true);
+  });  
+});
+
 describe('GameBoard: ship placement (placeShip)', () => {
 
   const gameBoard = new GameBoard();

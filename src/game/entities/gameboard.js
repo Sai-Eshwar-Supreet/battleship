@@ -96,6 +96,36 @@ class GameBoard {
     return true;
   }
 
+  canPlaceShip(origin, direction, length){
+    if (!Vector2Int.isValid(origin)) {
+      throw new TypeError('Expected origin of type Vector2Int');
+    }
+    if (!Vector2Int.isValid(direction)) {
+      throw new TypeError('Expected direction of type Vector2Int');
+    }
+
+    let isCardinal = Math.abs(direction.x) + Math.abs(direction.y) === 1;
+
+    if (!isCardinal) {
+      throw new Error('Direction must be cardinal (up, down, left, right)');
+    }
+
+    if (!Number.isInteger(length) || length <= 0) {
+      throw new TypeError('Expected length to be a positive integer');
+    }
+
+    let pos = origin;
+
+    for (let i = 0; i < length; i++) {
+      if(!pos.isWithin(this.#minBound, this.#maxBound) || this.#grid[pos.x][pos.y].occupiedShipId !== null){
+        return false;
+      }
+      pos = pos.add(direction);
+    }
+
+    return true;
+  }
+
   buildChain(origin, direction, length) {
     if (!Vector2Int.isValid(origin)) {
       throw new TypeError('Expected origin of type Vector2Int');
@@ -114,20 +144,16 @@ class GameBoard {
       throw new TypeError('Expected length to be a positive integer');
     }
 
-    if(!origin.isWithin(this.#minBound, this.#maxBound)){
-      return null;
-    }
-    
-    const chain = [origin];
+    const chain = [];
 
-    for (let i = 1; i < length; i++) {
+    let pos = origin;
 
-      const pos = chain[i - 1].add(direction);
-      
+    for (let i = 0; i < length; i++) {
       if(!pos.isWithin(this.#minBound, this.#maxBound)){
         return null;
       }
       chain.push(pos);
+      pos = pos.add(direction);
     }
 
     return chain;
