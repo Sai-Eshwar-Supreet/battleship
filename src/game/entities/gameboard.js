@@ -7,6 +7,8 @@ class GameBoard {
 
   #grid;
   #fleet;
+  #width;
+  #height;
 
   #minBound;
   #maxBound;
@@ -30,6 +32,14 @@ class GameBoard {
     Object.freeze(this.#grid);
 
     this.#fleet = new Map();
+  }
+
+  get width(){
+    return this.#width;
+  }
+
+  get height(){
+    return this.#height;
   }
 
   placeShip(ship, position, direction){
