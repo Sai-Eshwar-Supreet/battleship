@@ -38,6 +38,10 @@ class Player{
         }
         this.#strategy = strategy;
     }
+    
+    onAttackResult(move, result){
+        this.#strategy.onAttackResult(move, result);
+    }
 
     async requestMove(){
         return await this.#strategy.requestMove();
