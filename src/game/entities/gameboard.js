@@ -70,27 +70,31 @@ class GameBoard {
     return true;
   }
 
+  #createAttackResult(success, position, result){
+    return Object.freeze({success, position, result})
+  }
+
   receiveAttack(position){
     if (!Vector2Int.isValid(position)) {
       throw new TypeError('Expected position of type Vector2Int');
     }
 
     if(!position.isWithin(this.#minBound, this.#maxBound)){
-      return false;
+      return this.#createAttackResult(false, position, null);
     }
-
+    
     const cell = this.#grid[position.x][position.y];
-
+    
     if(cell.flag !== Cell.cellFlag.empty){
-      return false;
+      return this.#createAttackResult(false, position, null);
     }
-
+    
     const id = cell.occupiedShipId;
     this.#fleet.get(id)?.hit();
-
+    
     cell.flag = id !== null? Cell.cellFlag.hit : Cell.cellFlag.miss;
-
-    return true;
+    
+    return this.#createAttackResult(true, position, cell.flag);
   }
 
   allShipsSunk(){
