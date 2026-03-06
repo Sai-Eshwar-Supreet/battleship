@@ -21,8 +21,8 @@ class StateMachine {
     return this.#pendingStateType;
   }
   
-  addState(factory) {
-    this.#stateDictionary.addState(factory);
+  addState(factory, ctx = null) {
+    this.#stateDictionary.addState(factory, ctx);
   }
 
   requestState(type) {

@@ -13,12 +13,12 @@ class StateDictionary {
     return this.#length;
   }
 
-  addState(stateFactory) {
+  addState(stateFactory, ctx = null) {
     if(typeof stateFactory !== 'function'){
       throw new TypeError('Expects stateFactory to be of type function');
     }
 
-    const state = stateFactory?.() ?? null;
+    const state = stateFactory?.(ctx) ?? null;
 
     if (!state || !(state instanceof State) || typeof state.type !== 'string' || typeof state.enter !== 'function'){
       throw new Error('Invalid state returned by factory');
