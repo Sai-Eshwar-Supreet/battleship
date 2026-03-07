@@ -75,6 +75,15 @@ class PlacementSystem {
     return { id: ship.id, length: ship.length };
   }
 
+  getPlacementData(origin, direction){
+    if (this.#state === PLACEMENT_STATE.idle || this.#currentShipIndex === this.#ships.length) {
+      return null;
+    }
+    
+    const ship = this.#ships[this.#currentShipIndex];
+    return { chain: this.#board.buildChain(origin, direction, ship.length), canPlace: this.canPlace(origin, direction) };
+  }
+
   canPlace(position, direction) {
     return (
       this.#state === PLACEMENT_STATE.placing &&
