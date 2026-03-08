@@ -1,4 +1,4 @@
-import { UINT32_RANGE } from '../utils/number-helper';
+import { UINT32_RANGE } from '../utils/number-helper.js';
 
 /**
  * Deterministic pseudo-random number generator (PRNG).

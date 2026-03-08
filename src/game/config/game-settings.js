@@ -1,4 +1,4 @@
-import { DIFFICULTY } from "./difficulty-config";
+import { DIFFICULTY } from "./difficulty-config.js";
 
 let playerName = 'Player';
 let difficulty = DIFFICULTY.NORMAL;

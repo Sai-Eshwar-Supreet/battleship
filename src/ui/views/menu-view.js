@@ -1,5 +1,5 @@
-import { getSettings, setSettings } from "../../game/config/game-settings";
-import { createElementRecursively } from "../dom/dom-factory";
+import { getSettings, setSettings } from "../../game/config/game-settings.js";
+import { createElementRecursively } from "../dom/dom-factory.js";
 
 function buildMenuView(){
     const root = document.querySelector('#root');

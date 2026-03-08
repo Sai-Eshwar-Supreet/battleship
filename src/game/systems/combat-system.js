@@ -1,4 +1,4 @@
-import { Player } from '../entities/player/player';
+import { Player } from '../entities/player/player.js';
 
 class CombatSystem {
   #attacker;

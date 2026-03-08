@@ -1,7 +1,7 @@
-import { Vector2Int } from '../../core/math/vector2int';
-import { BOARD_HEIGHT, BOARD_WIDTH } from '../config/game-config';
-import { Cell } from './cell';
-import { Ship } from './ship';
+import { Vector2Int } from '../../core/math/vector2int.js';
+import { BOARD_HEIGHT, BOARD_WIDTH } from '../config/game-config.js';
+import { Cell } from './cell.js';
+import { Ship } from './ship.js';
 
 class GameBoard {
 
@@ -17,10 +17,12 @@ class GameBoard {
     this.#grid = [];
     this.#minBound = Vector2Int.origin;
     this.#maxBound = new Vector2Int(BOARD_WIDTH - 1, BOARD_HEIGHT - 1);
+    this.#width = BOARD_WIDTH;
+    this.#height = BOARD_HEIGHT;
 
-    for(let x = 0; x < BOARD_WIDTH; x++){
+    for(let y = 0; y < BOARD_HEIGHT; y++){
       const row = [];
-      for(let y = 0; y < BOARD_HEIGHT; y++){
+      for(let x = 0; x < BOARD_WIDTH; x++){
         const cell = new Cell();
 
         row.push(cell);
@@ -57,14 +59,14 @@ class GameBoard {
       return false;
     }
 
-    if(chain.some(pos => (this.#grid[pos.x][pos.y].occupiedShipId) !== null)){
+    if(chain.some(pos => (this.#grid[pos.y][pos.x].occupiedShipId) !== null)){
       return false;
     }
 
     this.#fleet.set(ship.id, ship);
 
     for(let pos of chain){
-      this.#grid[pos.x][pos.y].occupiedShipId = ship.id;
+      this.#grid[pos.y][pos.x].occupiedShipId = ship.id;
     }
 
     return true;
@@ -83,7 +85,7 @@ class GameBoard {
       return this.#createAttackResult(false, position, null);
     }
     
-    const cell = this.#grid[position.x][position.y];
+    const cell = this.#grid[position.y][position.x];
     
     if(cell.flag !== Cell.cellFlag.empty){
       return this.#createAttackResult(false, position, null);
@@ -131,7 +133,7 @@ class GameBoard {
     let pos = origin;
 
     for (let i = 0; i < length; i++) {
-      if(!pos.isWithin(this.#minBound, this.#maxBound) || this.#grid[pos.x][pos.y].occupiedShipId !== null){
+      if(!pos.isWithin(this.#minBound, this.#maxBound) || this.#grid[pos.y][pos.x].occupiedShipId !== null){
         return false;
       }
       pos = pos.add(direction);
@@ -173,13 +175,46 @@ class GameBoard {
     return chain;
   }
 
+  buildChainClamped(origin, direction, length) {
+    if (!Vector2Int.isValid(origin)) {
+      throw new TypeError('Expected origin of type Vector2Int');
+    }
+    if (!Vector2Int.isValid(direction)) {
+      throw new TypeError('Expected direction of type Vector2Int');
+    }
+
+    let isCardinal = Math.abs(direction.x) + Math.abs(direction.y) === 1;
+
+    if (!isCardinal) {
+      throw new Error('Direction must be cardinal (up, down, left, right)');
+    }
+
+    if (!Number.isInteger(length) || length <= 0) {
+      throw new TypeError('Expected length to be a positive integer');
+    }
+
+    const chain = [];
+
+    let pos = origin;
+
+    for (let i = 0; i < length; i++) {
+      if(!pos.isWithin(this.#minBound, this.#maxBound)){
+        break;
+      }
+      chain.push(pos);
+      pos = pos.add(direction);
+    }
+
+    return chain;
+  }
+
   reset(){
     this.#fleet.clear();
     
-    for(let x = 0; x < BOARD_WIDTH; x++){
-      const row = this.#grid[x];
-      for(let y = 0; y < BOARD_HEIGHT; y++){
-        const cell = row[y];
+    for(let y = 0; y < BOARD_HEIGHT; y++){
+      const row = this.#grid[y];
+      for(let x = 0; x < BOARD_WIDTH; x++){
+        const cell = row[x];
         cell.reset();
       }
     }

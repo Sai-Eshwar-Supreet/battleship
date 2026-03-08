@@ -1,4 +1,4 @@
-import { State } from "./state";
+import { State } from "./state.js";
 
 function createState(type, { enter, exit, update }) {
   if (typeof enter !== 'function') {

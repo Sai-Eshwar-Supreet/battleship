@@ -1,4 +1,4 @@
-import { StateDictionary } from './state-dictionary';
+import { StateDictionary } from './state-dictionary.js';
 
 // Extend this class to create concrete state machines and initialize states in the constructor
 class StateMachine {

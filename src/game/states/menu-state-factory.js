@@ -35,7 +35,7 @@ function createMenuState(ctx) {
     ctx.players[Player.type.computer] = new Player(
       'Enemy',
       Player.type.computer,
-      createHuntTargetStrategy(BOARD_WIDTH, BOARD_HEIGHT, difficulty, Date.now())
+      createHuntTargetStrategy({width:BOARD_WIDTH, height:BOARD_HEIGHT, difficultyConfig: difficulty, seed: Date.now()})
     );
     
     ctx.requestState('PLACEMENT');

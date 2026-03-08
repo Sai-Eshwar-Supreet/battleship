@@ -1,5 +1,5 @@
 import { Vector2Int } from '../../core/math/vector2int.js';
-import { RNG } from '../../core/random/rng';
+import { RNG } from '../../core/random/rng.js';
 import { GameBoard } from '../entities/gameboard.js';
 
 const DIRECTIONS = Object.freeze([Vector2Int.right, Vector2Int.up]);
@@ -81,7 +81,7 @@ class PlacementSystem {
     }
     
     const ship = this.#ships[this.#currentShipIndex];
-    return { chain: this.#board.buildChain(origin, direction, ship.length), canPlace: this.canPlace(origin, direction) };
+    return { chain: this.#board.buildChainClamped(origin, direction, ship.length), canPlace: this.canPlace(origin, direction) };
   }
 
   canPlace(position, direction) {
@@ -91,9 +91,15 @@ class PlacementSystem {
     );
   }
 
-  placeCurrentShip(position, direction) {
+  placeCurrentShip(position, direction, onPlace = (_chain) => {}) {
     if (this.canPlace(position, direction)) {
+
+      if(typeof onPlace !== 'function'){
+        throw new TypeError('Expects onPlace to be a function');
+      }
+
       const ship = this.#ships[this.#currentShipIndex];
+      const chain = this.#board.buildChain(position, direction, ship.length);
       this.#board.placeShip(ship, position, direction);
       this.#currentShipIndex++;
 
@@ -101,13 +107,14 @@ class PlacementSystem {
         this.#state = PLACEMENT_STATE.ready;
       }
 
+      onPlace?.(chain);
       return true;
     }
 
     return false;
   }
 
-  autoPlaceRemaining() {
+  autoPlaceRemaining(onPlace = (_chain) => {}) {
     if (this.#state !== PLACEMENT_STATE.placing) {
       return false;
     }
@@ -128,7 +135,7 @@ class PlacementSystem {
         const row = this.#rng.nextInt(0, rowMax);
         const coord = new Vector2Int(col, row);
 
-        if (this.placeCurrentShip(coord, direction)) {
+        if (this.placeCurrentShip(coord, direction, onPlace)) {
           placed = true;
         }
       }
@@ -138,12 +145,12 @@ class PlacementSystem {
     return true;
   }
 
-  autoPlaceAll() {
-    if (this.#state !== PLACEMENT_STATE.placing) {
+  autoPlaceAll(onPlace = (_chain) => {}) {
+    if (this.#state !== PLACEMENT_STATE.placing && this.#state !== PLACEMENT_STATE.ready) {
       return false;
     }
     this.resetPlacement();
-    return this.autoPlaceRemaining();
+    return this.autoPlaceRemaining(onPlace);
   }
 
   isPlacementComplete() {
