@@ -14,8 +14,8 @@ const EASY = deepFreeze({
   },
 
   timing: {
-    minDelayMs: 300,
-    maxDelayMs: 600,
+    minDelayMs: 250,
+    maxDelayMs: 450,
   },
 });
 
@@ -34,8 +34,8 @@ const NORMAL = deepFreeze({
   },
 
   timing: {
-    minDelayMs: 250,
-    maxDelayMs: 450,
+    minDelayMs: 300,
+    maxDelayMs: 600,
   },
 });
 
@@ -53,8 +53,8 @@ const HARD = deepFreeze({
   },
 
   timing: {
-    minDelayMs: 150,
-    maxDelayMs: 300,
+    minDelayMs: 600,
+    maxDelayMs: 800,
   },
 });
 

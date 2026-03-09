@@ -95,7 +95,7 @@ function createPlacementState(ctx){
     
     function update(){
         if(placementSystem?.isPlacementComplete()){
-            ctx.requestState('MENU');
+            ctx.requestState('COMBAT');
         }
     }
     

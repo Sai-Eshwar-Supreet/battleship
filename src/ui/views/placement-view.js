@@ -38,13 +38,6 @@ function buildPlacementView(width, height){
                 children: [
                     {
                         type: 'button',
-                        textContent:'Rotate',
-                        dataset: {
-                            action: "placement:rotate"
-                        }
-                    },
-                    {
-                        type: 'button',
                         textContent:'Revert',
                         dataset: {
                             action: "placement:reset"
@@ -110,6 +103,7 @@ function buildPlacementView(width, height){
             const row = [];
             for(let colIndex = 0;  colIndex< width; colIndex++){
                 const cellElement = document.createElement('div');
+                cellElement.classList.add('cell');
                 cellElement.dataset.row = rowIndex ;
                 cellElement.dataset.col = colIndex;
                 cellElement.addEventListener('mouseenter', handleCellEnter);
@@ -222,14 +216,14 @@ function buildPlacementView(width, height){
 
             cell.classList.remove('valid-place');
             cell.classList.remove('invalid-place');
-            cell.classList.add('ship-unit', 'normal');
+            cell.classList.add('ship-unit');
         }
     }
 
     function resetBoardState(){
         for(let row of cellGrid){
             for(let cell of row){
-                cell.classList.remove('ship-unit', 'normal', 'hit', 'miss', 'sunk')
+                cell.classList.remove('ship-unit')
             }
         }
     }
@@ -263,7 +257,7 @@ function buildPlacementView(width, height){
         currentShipDisplay.innerHTML = null;
         for(let i =0; i < length; i++){
             const ship = document.createElement('div');
-            ship.classList.add('ship-unit', 'normal');
+            ship.classList.add('ship-unit');
 
             currentShipDisplay.appendChild(ship);
         } 

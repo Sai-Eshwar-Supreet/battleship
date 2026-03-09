@@ -3,6 +3,8 @@ import { FLEET_CONFIG } from '../config/game-config.js';
 import { Ship } from '../entities/ship.js';
 import { createMenuState } from '../states/menu-state-factory.js';
 import { createPlacementState } from '../states/placement-state-factory.js';
+import { createCombatState } from '../states/combat-state-factory.js';
+import { createPreGameState } from '../states/pre-game-state.js';
 
 class GameController{
     #stateMachine;
@@ -14,7 +16,9 @@ class GameController{
 
         //register states
         this.#stateMachine.addState(createMenuState, this);
+        this.#stateMachine.addState(createPreGameState, this);
         this.#stateMachine.addState(createPlacementState, this);
+        this.#stateMachine.addState(createCombatState, this);
     }
     
     start(){

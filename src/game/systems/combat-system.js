@@ -1,3 +1,4 @@
+import { Cell } from '../entities/cell.js';
 import { Player } from '../entities/player/player.js';
 
 class CombatSystem {
@@ -40,7 +41,7 @@ class CombatSystem {
 
     if (response.success) {
       this.#attacker.onAttackResult(response.position, response.result);
-      [this.#attacker, this.#defender] = [this.#defender, this.#attacker];
+      if(response.result === Cell.cellFlag.miss) [this.#attacker, this.#defender] = [this.#defender, this.#attacker];
     }
 
     return response;
@@ -71,6 +72,14 @@ class CombatSystem {
     }
 
     return this.#attacker;
+  }
+
+  getCurrentOpponent() {
+    if (!this.#started) {
+      throw new Error('Combat not started yet');
+    }
+
+    return this.#defender;
   }
 }
 

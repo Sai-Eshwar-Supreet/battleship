@@ -21,8 +21,8 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
     // untried cells and hunt queue
     const untried = new Set();
     
-    for(let x = 0; x < width; x++){
-        for(let y = 0; y < height; y++){
+    for(let y = 0; y < height; y++){
+        for(let x = 0; x < width; x++){
             untried.add(createKey(x,y));
         }
     }
@@ -88,7 +88,7 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
     function buildTargets(secondHit){
         const forward = buildChain(anchor, searchDirection);
         const backward = buildChain(secondHit, searchDirection.negate());
-        return [...forward, ...backward];
+        return [...backward, ...forward];
     }
     
     function resetTargeting(){
@@ -131,7 +131,9 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
             const delay = rng.nextInt(difficultyConfig.timing.minDelayMs, difficultyConfig.timing.maxDelayMs);
             
             function callback(){
-                const move = shouldTarget()? popTarget() : popHunt();
+                const allowTargeting = shouldTarget();
+                if(!allowTargeting && anchor) anchor = null;
+                const move = allowTargeting? popTarget() : popHunt();
                 resolve(move);
             }
 
@@ -157,7 +159,7 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
         }
         
         if(searchDirection === null){ // second hit determines direction
-            const delta = _move.subtract(anchor);
+            const delta = anchor.subtract(_move);
 
             if(Math.abs(delta.x) + Math.abs(delta.y) !== 1) {
                 throw new Error('Invalid move: target hit must be adjacent to anchor');
@@ -170,7 +172,14 @@ export default function createHuntTargetStrategy({width, height, difficultyConfi
     }
 
     function onMiss(){
+
+        if(searchDirection !== null){
+            resetTargeting();
+            return;
+        }
+
         if(!shouldTarget()) {
+            if(anchor !== null) resetTargeting();
             return;
         }
 

@@ -1,18 +1,15 @@
+import {setSettings, getSettings} from '../config/game-settings.js'
 import { createState } from '../../core/state/state-factory.js';
 import { buildMenuView } from '../../ui/views/menu-view.js';
-import { DIFFICULTY } from '../config/difficulty-config.js';
-import { BOARD_HEIGHT, BOARD_WIDTH } from '../config/game-config.js';
-import { Player } from '../entities/player/player.js';
-import createHumanInputStrategy from '../entities/player/strategies/human-input-strategy.js';
-import createHuntTargetStrategy from '../entities/player/strategies/hunt-target-strategy.js';
 
 function createMenuState(ctx) {
   let menuView = null;
 
   function enter() {
-    menuView ??= buildMenuView();
+    const {playerName, difficulty} = getSettings();
+    menuView ??= buildMenuView(playerName, difficulty);
     menuView.mount();
-    menuView.onGameStart(handleGameStart);
+    menuView.onGameStart(updateSettings);
   }
 
   function update() {
@@ -24,21 +21,11 @@ function createMenuState(ctx) {
     menuView = null;
   }
 
-  function handleGameStart({ playerName, difficultyId }) {
-    const difficulty = Object.values(DIFFICULTY).find((d) => d.id === difficultyId);
+  function updateSettings({ playerName, difficultyId }) {
 
-    ctx.players[Player.type.human] = new Player(
-      playerName,
-      Player.type.human,
-      createHumanInputStrategy()
-    );
-    ctx.players[Player.type.computer] = new Player(
-      'Enemy',
-      Player.type.computer,
-      createHuntTargetStrategy({width:BOARD_WIDTH, height:BOARD_HEIGHT, difficultyConfig: difficulty, seed: Date.now()})
-    );
+    setSettings(playerName, difficultyId);
     
-    ctx.requestState('PLACEMENT');
+    ctx.requestState('PRE_GAME');
   }
 
   return createState('MENU', { enter, exit, update });

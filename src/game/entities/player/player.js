@@ -32,6 +32,10 @@ class Player{
         return this.#board;
     }
 
+    get health(){
+        return this.#board.getCumulativeHealth();
+    }
+
     setStrategy(strategy){
         if (!strategy || typeof strategy.requestMove !== 'function' || typeof strategy.onAttackResult !== 'function') {
             throw new TypeError('Invalid attack strategy');

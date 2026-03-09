@@ -1,14 +1,12 @@
-import { getSettings, setSettings } from "../../game/config/game-settings.js";
 import { createElementRecursively } from "../dom/dom-factory.js";
 
-function buildMenuView(){
+function buildMenuView(playerName, difficulty){
     const root = document.querySelector('#root');
 
     if(!root){
         throw new Error('There is no root element in the HTML');
     }
 
-    const {playerName, difficulty} = getSettings(); 
     const blueprint = {
         type: "div",
         classList: [],
@@ -118,8 +116,6 @@ function buildMenuView(){
 
         const playerName = formData.get('playerName');
         const difficultyId = formData.get('difficulty');
-
-        setSettings(playerName, difficultyId);
 
         handlers.forEach(callback => callback?.({playerName, difficultyId}));
     }

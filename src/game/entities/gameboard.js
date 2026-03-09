@@ -13,12 +13,17 @@ class GameBoard {
   #minBound;
   #maxBound;
 
+  #totalHits;
+  #totalLength;
+
   constructor(){
     this.#grid = [];
     this.#minBound = Vector2Int.origin;
     this.#maxBound = new Vector2Int(BOARD_WIDTH - 1, BOARD_HEIGHT - 1);
     this.#width = BOARD_WIDTH;
     this.#height = BOARD_HEIGHT;
+    this.#totalHits = 0;
+    this.#totalLength = 0;
 
     for(let y = 0; y < BOARD_HEIGHT; y++){
       const row = [];
@@ -64,6 +69,7 @@ class GameBoard {
     }
 
     this.#fleet.set(ship.id, ship);
+    this.#totalLength += ship.length;
 
     for(let pos of chain){
       this.#grid[pos.y][pos.x].occupiedShipId = ship.id;
@@ -92,7 +98,9 @@ class GameBoard {
     }
     
     const id = cell.occupiedShipId;
-    this.#fleet.get(id)?.hit();
+    const isHit = this.#fleet.get(id)?.hit();
+
+    if(isHit) this.#totalHits++;
     
     cell.flag = id !== null? Cell.cellFlag.hit : Cell.cellFlag.miss;
     
@@ -206,6 +214,25 @@ class GameBoard {
     }
 
     return chain;
+  }
+
+  getAllShipLocations(){
+    const positions = [];
+    for(let y = 0; y < BOARD_HEIGHT; y++){
+      for(let x = 0; x < BOARD_WIDTH; x++){
+        if(this.#grid[y][x].occupiedShipId !== null){
+          positions.push(new Vector2Int(x, y));
+        }
+      }
+    }
+    
+    return positions;
+  }
+
+  getCumulativeHealth(){
+    if(this.#totalLength === 0) return 0;
+
+    return (this.#totalLength - this.#totalHits) / this.#totalLength;
   }
 
   reset(){
