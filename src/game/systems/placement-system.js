@@ -22,7 +22,7 @@ class PlacementSystem {
     this.reset();
   }
 
-  get state(){
+  get state() {
     return this.#state;
   }
 
@@ -79,13 +79,16 @@ class PlacementSystem {
     return { id: ship.id, length: ship.length };
   }
 
-  getPlacementData(origin, direction){
+  getPlacementData(origin, direction) {
     if (this.#state === PLACEMENT_STATE.idle || this.#currentShipIndex === this.#ships.length) {
       return null;
     }
-    
+
     const ship = this.#ships[this.#currentShipIndex];
-    return { chain: this.#board.buildChainClamped(origin, direction, ship.length), canPlace: this.canPlace(origin, direction) };
+    return {
+      chain: this.#board.buildChainClamped(origin, direction, ship.length),
+      canPlace: this.canPlace(origin, direction),
+    };
   }
 
   canPlace(position, direction) {
@@ -97,8 +100,7 @@ class PlacementSystem {
 
   placeCurrentShip(position, direction, onPlace = (_chain) => {}) {
     if (this.canPlace(position, direction)) {
-
-      if(typeof onPlace !== 'function'){
+      if (typeof onPlace !== 'function') {
         throw new TypeError('Expects onPlace to be a function');
       }
 

@@ -1,4 +1,4 @@
-import { State } from "./state.js";
+import { State } from './state.js';
 
 class StateDictionary {
   #cache;
@@ -9,18 +9,23 @@ class StateDictionary {
     this.#length = 0;
   }
 
-  get length(){
+  get length() {
     return this.#length;
   }
 
   addState(stateFactory, ctx = null) {
-    if(typeof stateFactory !== 'function'){
+    if (typeof stateFactory !== 'function') {
       throw new TypeError('Expects stateFactory to be of type function');
     }
 
     const state = stateFactory?.(ctx) ?? null;
 
-    if (!state || !(state instanceof State) || typeof state.type !== 'string' || typeof state.enter !== 'function'){
+    if (
+      !state ||
+      !(state instanceof State) ||
+      typeof state.type !== 'string' ||
+      typeof state.enter !== 'function'
+    ) {
       throw new Error('Invalid state returned by factory');
     }
 

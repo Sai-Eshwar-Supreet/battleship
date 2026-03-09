@@ -1,4 +1,4 @@
-import {StateMachine} from '../../core/state/state-machine.js';
+import { StateMachine } from '../../core/state/state-machine.js';
 import { FLEET_CONFIG } from '../config/game-config.js';
 import { Ship } from '../entities/ship.js';
 import { createMenuState } from '../states/menu-state-factory.js';
@@ -6,52 +6,51 @@ import { createPlacementState } from '../states/placement-state-factory.js';
 import { createCombatState } from '../states/combat-state-factory.js';
 import { createPreGameState } from '../states/pre-game-state.js';
 
-class GameController{
-    #stateMachine;
-    #players;
+class GameController {
+  #stateMachine;
+  #players;
 
-    constructor(){
-        this.#stateMachine = new StateMachine();
-        this.#players = {};
+  constructor() {
+    this.#stateMachine = new StateMachine();
+    this.#players = {};
 
-        //register states
-        this.#stateMachine.addState(createMenuState, this);
-        this.#stateMachine.addState(createPreGameState, this);
-        this.#stateMachine.addState(createPlacementState, this);
-        this.#stateMachine.addState(createCombatState, this);
-    }
-    
-    start(){
-        this.#stateMachine.start('MENU');
-    }
+    //register states
+    this.#stateMachine.addState(createMenuState, this);
+    this.#stateMachine.addState(createPreGameState, this);
+    this.#stateMachine.addState(createPlacementState, this);
+    this.#stateMachine.addState(createCombatState, this);
+  }
 
-    update(dt){
-        this.#stateMachine.update(dt);
-    }
+  start() {
+    this.#stateMachine.start('MENU');
+  }
 
-    requestState(type){
-        this.#stateMachine.requestState(type);
-    }
+  update(dt) {
+    this.#stateMachine.update(dt);
+  }
 
-    getState(){
-        return this.#stateMachine.currentStateType;
-    }
+  requestState(type) {
+    this.#stateMachine.requestState(type);
+  }
 
-    get players(){
-        return this.#players;
-    }
+  getState() {
+    return this.#stateMachine.currentStateType;
+  }
 
-    buildFleet(){
-        const ships = [];
-        for(let shipData of FLEET_CONFIG){
-            const ship = new Ship(shipData);
+  get players() {
+    return this.#players;
+  }
 
-            ships.push(ship);
-        }
+  buildFleet() {
+    const ships = [];
+    for (let shipData of FLEET_CONFIG) {
+      const ship = new Ship(shipData);
 
-        return ships;
+      ships.push(ship);
     }
 
+    return ships;
+  }
 }
 
-export {GameController};
+export { GameController };

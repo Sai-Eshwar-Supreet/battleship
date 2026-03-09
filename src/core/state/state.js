@@ -1,21 +1,21 @@
-class State{
-    #type;
+class State {
+  #type;
 
-    constructor(type){
-        if (typeof type !== 'string') {
-            throw new TypeError('State type must be a string');
-        }
-
-        this.#type = type;
+  constructor(type) {
+    if (typeof type !== 'string') {
+      throw new TypeError('State type must be a string');
     }
 
-    get type(){
-        return this.#type;
-    }
+    this.#type = type;
+  }
 
-    toString(){
-        return this.#type;
-    }
+  get type() {
+    return this.#type;
+  }
+
+  toString() {
+    return this.#type;
+  }
 }
 
-export {State}
+export { State };

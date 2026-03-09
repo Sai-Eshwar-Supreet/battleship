@@ -17,16 +17,16 @@ class StateMachine {
     return this.#currentState?.type ?? null;
   }
 
-  get pendingStateType(){
+  get pendingStateType() {
     return this.#pendingStateType;
   }
-  
+
   addState(factory, ctx = null) {
     this.#stateDictionary.addState(factory, ctx);
   }
 
   requestState(type) {
-    if(!this.#currentState){
+    if (!this.#currentState) {
       throw new Error('State machine is not started');
     }
 
@@ -76,7 +76,7 @@ class StateMachine {
       this.#onTransition.forEach((fn) => fn(from, this.#currentState.type));
     }
   }
-  
+
   onTransition(callback) {
     if (typeof callback !== 'function') {
       throw new TypeError('onTransition expects a function');

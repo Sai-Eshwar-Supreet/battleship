@@ -13,8 +13,8 @@ class Cell {
     return this.#occupiedShipId;
   }
 
-  set occupiedShipId(value){
-    if(typeof value !== 'string'){
+  set occupiedShipId(value) {
+    if (typeof value !== 'string') {
       throw new TypeError('Expects ship id to be a string');
     }
 
@@ -30,7 +30,7 @@ class Cell {
     this.#flag = value;
   }
 
-  reset(){
+  reset() {
     this.#occupiedShipId = null;
     this.#flag = Cell.cellFlag.empty;
   }

@@ -19,12 +19,12 @@ class Ship {
    * @throws {TypeError} If length is not a positive integer
    * @throws {TypeError} If id is not a string
    */
-  constructor({id, length} = {}) {
+  constructor({ id, length } = {}) {
     if (!Number.isInteger(length) || length <= 0) {
       throw new TypeError('Ship length must be a positive integer');
     }
 
-    if(typeof id !== 'string'){
+    if (typeof id !== 'string') {
       throw new TypeError('Ship id must be a string');
     }
 

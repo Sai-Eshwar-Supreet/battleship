@@ -1,168 +1,165 @@
-import { createElementRecursively } from "../dom/dom-factory.js";
+import { createElementRecursively } from '../dom/dom-factory.js';
 
-function buildMenuView(playerName, difficulty){
-    const root = document.querySelector('#root');
+function buildMenuView(playerName, difficulty) {
+  const root = document.querySelector('#root');
 
-    if(!root){
-        throw new Error('There is no root element in the HTML');
-    }
+  if (!root) {
+    throw new Error('There is no root element in the HTML');
+  }
 
-    const blueprint = {
-  type: "section",
-  classList: ["menu-screen"],
-  children: [
-    {
-      type: "div",
-      classList: ["menu-card"],
-      children: [
-        {
-          type: "h1",
-          classList: ["menu-title"],
-          textContent: "BATTLESHIP"
-        },
-
-        {
-          type: "form",
-          attributes: {
-            id: "menu-form"
+  const blueprint = {
+    type: 'section',
+    classList: ['menu-screen'],
+    children: [
+      {
+        type: 'div',
+        classList: ['menu-card'],
+        children: [
+          {
+            type: 'h1',
+            classList: ['menu-title'],
+            textContent: 'BATTLESHIP',
           },
-          classList: ["menu-form"],
-          children: [
 
-            {
-              type: "div",
-              classList: ["form-group"],
-              children: [
-                {
-                  type: "label",
-                  attributes: {
-                    for: "player-name"
-                  },
-                  textContent: "Player Name"
-                },
-                {
-                  type: "input",
-                  attributes: {
-                    id: "player-name",
-                    type: "text",
-                    name: "playerName",
-                    value: playerName,
-                    placeholder: "Enter your name"
-                  }
-                }
-              ]
+          {
+            type: 'form',
+            attributes: {
+              id: 'menu-form',
             },
-
-            {
-              type: "div",
-              classList: ["form-group"],
-              children: [
-                {
-                  type: "label",
-                  attributes: {
-                    for: "difficulty-select"
+            classList: ['menu-form'],
+            children: [
+              {
+                type: 'div',
+                classList: ['form-group'],
+                children: [
+                  {
+                    type: 'label',
+                    attributes: {
+                      for: 'player-name',
+                    },
+                    textContent: 'Player Name',
                   },
-                  textContent: "Difficulty"
+                  {
+                    type: 'input',
+                    attributes: {
+                      id: 'player-name',
+                      type: 'text',
+                      name: 'playerName',
+                      value: playerName,
+                      placeholder: 'Enter your name',
+                    },
+                  },
+                ],
+              },
+
+              {
+                type: 'div',
+                classList: ['form-group'],
+                children: [
+                  {
+                    type: 'label',
+                    attributes: {
+                      for: 'difficulty-select',
+                    },
+                    textContent: 'Difficulty',
+                  },
+                  {
+                    type: 'select',
+                    attributes: {
+                      id: 'difficulty-select',
+                      name: 'difficulty',
+                    },
+                    children: [
+                      {
+                        type: 'option',
+                        textContent: 'Easy',
+                        attributes: {
+                          value: 'easy',
+                          selected: Boolean(difficulty.id === 'easy'),
+                        },
+                      },
+                      {
+                        type: 'option',
+                        textContent: 'Normal',
+                        attributes: {
+                          value: 'normal',
+                          selected: Boolean(difficulty.id === 'normal'),
+                        },
+                      },
+                      {
+                        type: 'option',
+                        textContent: 'Hard',
+                        attributes: {
+                          value: 'hard',
+                          selected: Boolean(difficulty.id === 'hard'),
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              {
+                type: 'button',
+                classList: ['start-button'],
+                textContent: 'Start Game',
+                attributes: {
+                  type: 'submit',
                 },
-                {
-                  type: "select",
-                  attributes: {
-                    id: "difficulty-select",
-                    name: "difficulty"
-                  },
-                  children: [
-                    {
-                      type: "option",
-                      textContent: "Easy",
-                      attributes: {
-                        value: "easy",
-                        selected: Boolean(difficulty.id === "easy")
-                      }
-                    },
-                    {
-                      type: "option",
-                      textContent: "Normal",
-                      attributes: {
-                        value: "normal",
-                        selected: Boolean(difficulty.id === "normal")
-                      }
-                    },
-                    {
-                      type: "option",
-                      textContent: "Hard",
-                      attributes: {
-                        value: "hard",
-                        selected: Boolean(difficulty.id === "hard")
-                      }
-                    }
-                  ]
-                }
-              ]
-            },
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 
-            {
-              type: "button",
-              classList: ["start-button"],
-              textContent: "Start Game",
-              attributes: {
-                type: "submit"
-              }
-            }
+  let ui = null;
+  let menuForm;
+  let handlers = [];
 
-          ]
-        }
-      ]
-    }
-  ]
-};
-
-    let ui = null;
-    let menuForm;
-    let handlers = [];
-
-    function mount(){
-        if(ui){
-            throw new Error('Cannot mount the same ui twice');
-        }
-
-        ui = createElementRecursively(blueprint);
-        menuForm = ui.querySelector('#menu-form');
-
-
-        menuForm.addEventListener('submit', menuSubmitHandler);
-
-        root.appendChild(ui);
+  function mount() {
+    if (ui) {
+      throw new Error('Cannot mount the same ui twice');
     }
 
-    function unmount(){
-        if(!ui){
-            throw new Error('Unmount request is invalid');
-        }
-        
-        root.removeChild(ui);
-        ui = null;
-        menuForm = null;
-        handlers = [];
+    ui = createElementRecursively(blueprint);
+    menuForm = ui.querySelector('#menu-form');
+
+    menuForm.addEventListener('submit', menuSubmitHandler);
+
+    root.appendChild(ui);
+  }
+
+  function unmount() {
+    if (!ui) {
+      throw new Error('Unmount request is invalid');
     }
 
-    function menuSubmitHandler(event){
-        event.preventDefault();
-        const formData = new FormData(event.target);
+    root.removeChild(ui);
+    ui = null;
+    menuForm = null;
+    handlers = [];
+  }
 
-        const playerName = formData.get('playerName');
-        const difficultyId = formData.get('difficulty');
+  function menuSubmitHandler(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
 
-        handlers.forEach(callback => callback?.({playerName, difficultyId}));
+    const playerName = formData.get('playerName');
+    const difficultyId = formData.get('difficulty');
+
+    handlers.forEach((callback) => callback?.({ playerName, difficultyId }));
+  }
+
+  function onGameStart(callback) {
+    if (typeof callback !== 'function') {
+      throw new TypeError('Expects a function as callback');
     }
+    handlers.push(callback);
+  }
 
-    function onGameStart(callback){
-        if(typeof callback !== 'function'){
-            throw new TypeError('Expects a function as callback');
-        }
-        handlers.push(callback);
-    }
-
-    return {mount, unmount, onGameStart};
+  return { mount, unmount, onGameStart };
 }
 
-export {buildMenuView};
+export { buildMenuView };

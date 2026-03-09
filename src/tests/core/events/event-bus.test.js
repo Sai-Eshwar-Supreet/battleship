@@ -14,7 +14,7 @@ describe('EventBus: subscription (on)', () => {
   test('should throw if one or more handlers are not functions', () => {
     expect(() => eventBus.on('SUBSCRIBE_EVENT', null)).toThrow(TypeError);
     expect(() => eventBus.on('SUBSCRIBE_EVENT', () => {}, undefined)).toThrow(TypeError);
-    expect(() => eventBus.on('SUBSCRIBE_EVENT', undefined, () => {}, null )).toThrow(TypeError);
+    expect(() => eventBus.on('SUBSCRIBE_EVENT', undefined, () => {}, null)).toThrow(TypeError);
   });
 
   test('should throw if no handlers are provided', () => {
@@ -59,17 +59,17 @@ describe('EventBus: un-subscription (off)', () => {
   afterEach(() => {
     eventBus.clear();
   });
-  
+
   test('should throw if type is not a string', () => {
     expect(() => eventBus.off(null, () => {})).toThrow(TypeError);
     expect(() => eventBus.off(undefined, () => {})).toThrow(TypeError);
     expect(() => eventBus.off({}, () => {})).toThrow(TypeError);
   });
-  
+
   test('should throw if handler is not a function', () => {
     expect(() => eventBus.off('SUBSCRIBE_EVENT', null)).toThrow(TypeError);
     expect(() => eventBus.off('SUBSCRIBE_EVENT', undefined)).toThrow(TypeError);
-    expect(() => eventBus.off('SUBSCRIBE_EVENT', {} )).toThrow(TypeError);
+    expect(() => eventBus.off('SUBSCRIBE_EVENT', {})).toThrow(TypeError);
   });
 
   test('should remove a specific handler', () => {
@@ -103,7 +103,6 @@ describe('EventBus: un-subscription (off)', () => {
 });
 
 describe('EventBus: emission (emit)', () => {
-  
   afterEach(() => eventBus.clear());
 
   test('should throw if type is not a string', () => {
@@ -113,8 +112,8 @@ describe('EventBus: emission (emit)', () => {
   });
 
   test('should pass data to handlers', () => {
-    const handler= jest.fn();
-    const payload = {data: "emit"};
+    const handler = jest.fn();
+    const payload = { data: 'emit' };
 
     eventBus.on('EMIT_EVENT', handler);
 
@@ -125,11 +124,10 @@ describe('EventBus: emission (emit)', () => {
 
   test('should not throw when emitting an event with no handlers', () => {
     expect(() => eventBus.emit('EMIT_EVENT', {})).not.toThrow();
-  });  
+  });
 });
 
 describe('EventBus: clear', () => {
-
   test('should remove all handlers for all events', () => {
     const handlerA = jest.fn();
     const handlerB = jest.fn();

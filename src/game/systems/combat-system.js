@@ -41,7 +41,8 @@ class CombatSystem {
 
     if (response.success) {
       this.#attacker.onAttackResult(response.position, response.result);
-      if(response.result === Cell.cellFlag.miss) [this.#attacker, this.#defender] = [this.#defender, this.#attacker];
+      if (response.result === Cell.cellFlag.miss)
+        [this.#attacker, this.#defender] = [this.#defender, this.#attacker];
     }
 
     return response;

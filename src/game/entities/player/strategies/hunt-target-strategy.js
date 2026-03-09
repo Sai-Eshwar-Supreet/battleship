@@ -1,207 +1,217 @@
-import { Vector2Int } from "../../../../core/math/vector2int.js";
-import { RNG } from "../../../../core/random/rng.js";
-import { GameClock } from "../../../../core/time/game-clock.js";
-import { assertEnum } from "../../../../core/validation/enum-validation.js";
-import { Cell } from "../../../entities/cell.js";
+import { Vector2Int } from '../../../../core/math/vector2int.js';
+import { RNG } from '../../../../core/random/rng.js';
+import { GameClock } from '../../../../core/time/game-clock.js';
+import { assertEnum } from '../../../../core/validation/enum-validation.js';
+import { Cell } from '../../../entities/cell.js';
 
+export default function createHuntTargetStrategy({
+  width,
+  height,
+  difficultyConfig,
+  seed = Date.now(),
+}) {
+  if (!Number.isInteger(width) || width <= 0) {
+    throw new TypeError('Invalid board width');
+  }
+  if (!Number.isInteger(height) || height <= 0) {
+    throw new TypeError('Invalid board height');
+  }
 
-export default function createHuntTargetStrategy({width, height, difficultyConfig, seed = Date.now()}){
-    if (!Number.isInteger(width) || width <= 0) {
-        throw new TypeError('Invalid board width');
+  const minBound = Vector2Int.origin;
+  const maxBound = new Vector2Int(width - 1, height - 1);
+  const rng = new RNG(seed);
+  const gameClock = new GameClock();
+
+  // untried cells and hunt queue
+  const untried = new Set();
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      untried.add(createKey(x, y));
     }
-    if (!Number.isInteger(height) || height <= 0) {
-        throw new TypeError('Invalid board height');
+  }
+
+  const allKeys = Array.from(untried.values());
+  const evenQueue = rng.shuffle(allKeys.filter((k) => parityOf(k) === 0));
+  const oddQueue = rng.shuffle(allKeys.filter((k) => parityOf(k) !== 0));
+
+  // targeting state
+  let anchor = null;
+  let targets = null;
+  let searchDirection = null;
+  let missTolerance = 0;
+
+  // helpers
+  function createKey(x, y) {
+    return `${x},${y}`;
+  }
+
+  function keyOf(vector) {
+    return createKey(vector.x, vector.y);
+  }
+
+  function vectorOf(key) {
+    let [x, y] = key.split(',').map(Number);
+    return new Vector2Int(x, y);
+  }
+
+  function parityOf(key) {
+    let [x, y] = key.split(',').map(Number);
+    return (x + y) % 2;
+  }
+
+  function shouldTarget() {
+    return (
+      targets?.length > 0 &&
+      difficultyConfig.targeting.canTarget &&
+      rng.next() < difficultyConfig.targeting.accuracy
+    );
+  }
+
+  function neighborsOf(vec) {
+    return [Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down]
+      .map((dir) => vec.add(dir))
+      .filter((v) => v.isWithin(minBound, maxBound))
+      .map(keyOf);
+  }
+
+  function buildChain(origin, direction) {
+    const chain = [];
+    let cursor = origin.add(direction);
+
+    while (cursor.isWithin(minBound, maxBound)) {
+      const key = keyOf(cursor);
+      if (!untried.has(key)) {
+        break;
+      }
+      chain.push(key);
+      cursor = cursor.add(direction);
     }
 
-    const minBound = Vector2Int.origin;
-    const maxBound = new Vector2Int(width - 1, height - 1);
-    const rng = new RNG(seed);
-    const gameClock = new GameClock();
+    return chain;
+  }
 
-    // untried cells and hunt queue
-    const untried = new Set();
-    
-    for(let y = 0; y < height; y++){
-        for(let x = 0; x < width; x++){
-            untried.add(createKey(x,y));
+  function buildTargets(secondHit) {
+    const forward = buildChain(anchor, searchDirection);
+    const backward = buildChain(secondHit, searchDirection.negate());
+    return [...backward, ...forward];
+  }
+
+  function resetTargeting() {
+    anchor = null;
+    targets = null;
+    searchDirection = null;
+    missTolerance = 0;
+  }
+
+  function popHunt() {
+    for (const queue of [evenQueue, oddQueue]) {
+      while (queue.length > 0) {
+        const key = queue.pop();
+        if (untried.has(key)) {
+          untried.delete(key);
+          return vectorOf(key);
         }
+      }
     }
 
-    const allKeys = Array.from(untried.values());
-    const evenQueue = rng.shuffle(allKeys.filter(k => parityOf(k) === 0));
-    const oddQueue = rng.shuffle(allKeys.filter(k => parityOf(k) !== 0));
+    throw new Error('No moves remaining');
+  }
 
-    // targeting state
-    let anchor = null;
-    let targets = null;
-    let searchDirection = null;
-    let missTolerance = 0;
-    
-    // helpers
-    function createKey(x, y){
-        return `${x},${y}`;
+  function popTarget() {
+    while (targets.length > 0) {
+      const key = targets.shift();
+
+      if (untried.has(key)) {
+        untried.delete(key);
+        return vectorOf(key);
+      }
     }
 
-    function keyOf(vector){
-        return createKey(vector.x, vector.y)
+    resetTargeting();
+    return popHunt();
+  }
+
+  function requestMove() {
+    const promise = new Promise((resolve) => {
+      const delay = rng.nextInt(
+        difficultyConfig.timing.minDelayMs,
+        difficultyConfig.timing.maxDelayMs
+      );
+
+      function callback() {
+        const allowTargeting = shouldTarget();
+        if (!allowTargeting && anchor) anchor = null;
+        const move = allowTargeting ? popTarget() : popHunt();
+        resolve(move);
+      }
+
+      gameClock.delay(delay, callback);
+    });
+
+    return promise;
+  }
+
+  function onHit(_move) {
+    if (!difficultyConfig.memory.rememberShots) {
+      return;
     }
 
-    function vectorOf(key){
-        let [x, y] = key.split(',').map(Number);
-        return new Vector2Int(x, y);
+    // successful hit resets patience
+    missTolerance = 0;
+
+    // update memory
+    if (anchor === null) {
+      // first hit determines anchor
+      anchor = _move;
+      targets = rng.shuffle(neighborsOf(anchor).filter((k) => untried.has(k)));
+      return;
     }
 
-    function parityOf(key){
-        let [x, y] = key.split(',').map(Number);
-        return (x + y) % 2;
+    if (searchDirection === null) {
+      // second hit determines direction
+      const delta = anchor.subtract(_move);
+
+      if (Math.abs(delta.x) + Math.abs(delta.y) !== 1) {
+        throw new Error('Invalid move: target hit must be adjacent to anchor');
+      }
+
+      searchDirection = new Vector2Int(Math.sign(delta.x), Math.sign(delta.y));
+      targets = buildTargets(_move);
+      return;
+    }
+  }
+
+  function onMiss() {
+    if (searchDirection !== null) {
+      resetTargeting();
+      return;
     }
 
-    function shouldTarget(){
-        return targets?.length > 0 
-            && difficultyConfig.targeting.canTarget 
-            && rng.next() < difficultyConfig.targeting.accuracy;
+    if (!shouldTarget()) {
+      if (anchor !== null) resetTargeting();
+      return;
     }
 
-    function neighborsOf(vec) {
-        return [Vector2Int.right, Vector2Int.left, Vector2Int.up, Vector2Int.down]
-            .map(dir => vec.add(dir))
-            .filter(v => v.isWithin(minBound, maxBound))
-            .map(keyOf);
+    missTolerance++;
+    if (missTolerance > difficultyConfig.memory.maxMissTolerance) {
+      resetTargeting();
     }
-    
-    function buildChain(origin, direction){
-        const chain = [];
-        let cursor = origin.add(direction);
+  }
 
-        while(cursor.isWithin(minBound, maxBound)){
-            const key = keyOf(cursor);
-            if(!untried.has(key)){
-                break;
-            }
-            chain.push(key);
-            cursor = cursor.add(direction);
-        }
-
-        return chain;
-    }
-        
-    function buildTargets(secondHit){
-        const forward = buildChain(anchor, searchDirection);
-        const backward = buildChain(secondHit, searchDirection.negate());
-        return [...backward, ...forward];
-    }
-    
-    function resetTargeting(){
-        anchor = null;
-        targets = null;
-        searchDirection = null;
-        missTolerance = 0;
+  function onAttackResult(_move, _result) {
+    if (!Vector2Int.isValid(_move)) {
+      throw new TypeError('Expects _move to be a Vector2Int');
     }
 
-    function popHunt(){
-        for(const queue of [evenQueue, oddQueue]){
-            while(queue.length > 0){
-                const key = queue.pop();
-                if(untried.has(key)){
-                    untried.delete(key);
-                    return vectorOf(key);
-                }
-            }
-        }
+    assertEnum(Cell.cellFlag, _result, 'Cell flag');
 
-        throw new Error('No moves remaining');
+    if (_result === Cell.cellFlag.hit) {
+      onHit(_move);
+    } else if (_result === Cell.cellFlag.miss) {
+      onMiss();
     }
+  }
 
-    function popTarget(){
-        while(targets.length > 0){
-            const key = targets.shift();
-
-            if(untried.has(key)){
-                untried.delete(key);
-                return vectorOf(key);
-            }
-        }
-
-        resetTargeting();
-        return popHunt();
-    }
-    
-    function requestMove(){
-        const promise = new Promise((resolve) => {
-            const delay = rng.nextInt(difficultyConfig.timing.minDelayMs, difficultyConfig.timing.maxDelayMs);
-            
-            function callback(){
-                const allowTargeting = shouldTarget();
-                if(!allowTargeting && anchor) anchor = null;
-                const move = allowTargeting? popTarget() : popHunt();
-                resolve(move);
-            }
-
-            gameClock.delay(delay, callback);
-        });
-
-        return promise;
-    }
-
-    function onHit(_move){
-        if(!difficultyConfig.memory.rememberShots){
-            return;
-        }
-        
-        // successful hit resets patience
-        missTolerance = 0;
-
-        // update memory
-        if(anchor === null){ // first hit determines anchor
-            anchor = _move;
-            targets = rng.shuffle(neighborsOf(anchor).filter(k => untried.has(k)));
-            return;
-        }
-        
-        if(searchDirection === null){ // second hit determines direction
-            const delta = anchor.subtract(_move);
-
-            if(Math.abs(delta.x) + Math.abs(delta.y) !== 1) {
-                throw new Error('Invalid move: target hit must be adjacent to anchor');
-            }
-
-            searchDirection = new Vector2Int(Math.sign(delta.x), Math.sign(delta.y));
-            targets = buildTargets(_move);
-            return;
-        }
-    }
-
-    function onMiss(){
-
-        if(searchDirection !== null){
-            resetTargeting();
-            return;
-        }
-
-        if(!shouldTarget()) {
-            if(anchor !== null) resetTargeting();
-            return;
-        }
-
-        missTolerance++;
-        if(missTolerance > difficultyConfig.memory.maxMissTolerance){
-            resetTargeting();
-        }
-    }
-
-    function onAttackResult(_move, _result){
-        if(!Vector2Int.isValid(_move)){
-            throw new TypeError('Expects _move to be a Vector2Int');
-        }
-
-        assertEnum(Cell.cellFlag, _result, "Cell flag");
-
-        if(_result === Cell.cellFlag.hit){
-            onHit(_move);
-        }else if(_result === Cell.cellFlag.miss){
-            onMiss();
-        }
-    }
-
-    return Object.freeze({requestMove, onAttackResult});
+  return Object.freeze({ requestMove, onAttackResult });
 }

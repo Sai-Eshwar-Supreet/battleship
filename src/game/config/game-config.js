@@ -2,7 +2,7 @@ export const BOARD_WIDTH = 10;
 export const BOARD_HEIGHT = 10;
 
 function createFleetConfig(id, length) {
-  return Object.freeze({ id, length});
+  return Object.freeze({ id, length });
 }
 
 export const FLEET_CONFIG = Object.freeze([

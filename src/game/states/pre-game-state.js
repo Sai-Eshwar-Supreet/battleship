@@ -6,7 +6,6 @@ import createHumanInputStrategy from '../entities/player/strategies/human-input-
 import createHuntTargetStrategy from '../entities/player/strategies/hunt-target-strategy.js';
 
 function createPreGameState(ctx) {
-
   function enter() {
     initializePlayers();
   }
@@ -20,8 +19,7 @@ function createPreGameState(ctx) {
   }
 
   function initializePlayers() {
-
-    const {playerName, difficulty} = getSettings();
+    const { playerName, difficulty } = getSettings();
     ctx.players[Player.type.human] = new Player(
       playerName,
       Player.type.human,
@@ -30,7 +28,12 @@ function createPreGameState(ctx) {
     ctx.players[Player.type.computer] = new Player(
       'Enemy',
       Player.type.computer,
-      createHuntTargetStrategy({width:BOARD_WIDTH, height:BOARD_HEIGHT, difficultyConfig: difficulty, seed: Date.now()})
+      createHuntTargetStrategy({
+        width: BOARD_WIDTH,
+        height: BOARD_HEIGHT,
+        difficultyConfig: difficulty,
+        seed: Date.now(),
+      })
     );
   }
 

@@ -1,7 +1,7 @@
-import { Vector2Int } from "../../../../core/math/vector2int.js";
-import createHuntTargetStrategy from "../../../../game/entities/player/strategies/hunt-target-strategy.js";
-import { Cell } from "../../../../game/entities/cell.js";
-import { DIFFICULTY } from "../../../../game/config/difficulty-config.js";
+import { Vector2Int } from '../../../../core/math/vector2int.js';
+import createHuntTargetStrategy from '../../../../game/entities/player/strategies/hunt-target-strategy.js';
+import { Cell } from '../../../../game/entities/cell.js';
+import { DIFFICULTY } from '../../../../game/config/difficulty-config.js';
 
 function createStrategyHelper(overrides = {}) {
   return createHuntTargetStrategy({
@@ -13,30 +13,25 @@ function createStrategyHelper(overrides = {}) {
   });
 }
 
-describe("HuntTargetStrategy: construction", () => {
-  test("throws for invalid board size", () => {
-    expect(() =>
-      createHuntTargetStrategy({ width: 0, height: 4 })
-    ).toThrow(TypeError);
+describe('HuntTargetStrategy: construction', () => {
+  test('throws for invalid board size', () => {
+    expect(() => createHuntTargetStrategy({ width: 0, height: 4 })).toThrow(TypeError);
 
-    expect(() =>
-      createHuntTargetStrategy({ width: 4, height: -1 })
-    ).toThrow(TypeError);
+    expect(() => createHuntTargetStrategy({ width: 4, height: -1 })).toThrow(TypeError);
   });
 
-  test("creates strategy with valid config", () => {
+  test('creates strategy with valid config', () => {
     const strategy = createStrategyHelper();
-    expect(strategy).toHaveProperty("requestMove");
-    expect(strategy).toHaveProperty("onAttackResult");
+    expect(strategy).toHaveProperty('requestMove');
+    expect(strategy).toHaveProperty('onAttackResult');
   });
 });
 
-describe("HuntTargetStrategy: requestMove", () => {
+describe('HuntTargetStrategy: requestMove', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
-    beforeEach(() => jest.useFakeTimers());
-    afterEach(() => jest.useRealTimers());
-
-  test("returns a Vector2Int within bounds", async () => {
+  test('returns a Vector2Int within bounds', async () => {
     const strategy = createStrategyHelper();
 
     const promise = strategy.requestMove();
@@ -51,7 +46,7 @@ describe("HuntTargetStrategy: requestMove", () => {
     expect(move.y).toBeLessThan(4);
   });
 
-  test("never returns the same move twice", async () => {
+  test('never returns the same move twice', async () => {
     const strategy = createStrategyHelper();
     const seen = new Set();
 
@@ -70,35 +65,29 @@ describe("HuntTargetStrategy: requestMove", () => {
   });
 });
 
-describe("HuntTargetStrategy: onAttackResult validation", () => {
+describe('HuntTargetStrategy: onAttackResult validation', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
-    beforeEach(() => jest.useFakeTimers());
-    afterEach(() => jest.useRealTimers());
-
-  test("throws for invalid move", () => {
+  test('throws for invalid move', () => {
     const strategy = createStrategyHelper();
 
-    expect(() =>
-      strategy.onAttackResult({}, Cell.cellFlag.hit)
-    ).toThrow(TypeError);
+    expect(() => strategy.onAttackResult({}, Cell.cellFlag.hit)).toThrow(TypeError);
   });
 
-  test("throws for invalid result", () => {
+  test('throws for invalid result', () => {
     const strategy = createStrategyHelper();
     const move = new Vector2Int(0, 0);
 
-    expect(() =>
-      strategy.onAttackResult(move, "boom")
-    ).toThrow(Error);
+    expect(() => strategy.onAttackResult(move, 'boom')).toThrow(Error);
   });
 });
 
 describe('HuntTargetStrategy: onAttackResult feedback tests', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => jest.useRealTimers());
 
-    beforeEach(() => jest.useFakeTimers());
-    afterEach(() => jest.useRealTimers());
-
-  test("after a hit, strategy targets neighbors", async () => {
+  test('after a hit, strategy targets neighbors', async () => {
     const strategy = createStrategyHelper();
     const hit = new Vector2Int(1, 1);
 
@@ -109,13 +98,12 @@ describe('HuntTargetStrategy: onAttackResult feedback tests', () => {
 
     const next = await promise;
 
-    const isNeighbor =
-        Math.abs(next.x - 1) + Math.abs(next.y - 1) === 1;
+    const isNeighbor = Math.abs(next.x - 1) + Math.abs(next.y - 1) === 1;
 
     expect(isNeighbor).toBe(true);
   });
 
-  test("locks direction after second adjacent hit", async () => {
+  test('locks direction after second adjacent hit', async () => {
     const strategy = createStrategyHelper();
 
     const first = new Vector2Int(1, 1);
@@ -134,22 +122,21 @@ describe('HuntTargetStrategy: onAttackResult feedback tests', () => {
   });
 
   test('should reset targeting after exceeding miss tolerance', async () => {
-    
     const strategy = createStrategyHelper({
-        difficultyConfig: {
-            ...DIFFICULTY.NORMAL,
-            memory: { rememberShots: true, maxMissTolerance: 1 }
-        }
+      difficultyConfig: {
+        ...DIFFICULTY.NORMAL,
+        memory: { rememberShots: true, maxMissTolerance: 1 },
+      },
     });
 
     const requestMove = async () => {
-        const promise = strategy.requestMove();
-        jest.runAllTimers();
+      const promise = strategy.requestMove();
+      jest.runAllTimers();
 
-        return promise;
-    }
+      return promise;
+    };
 
-    const anchor = new Vector2Int(1,1);
+    const anchor = new Vector2Int(1, 1);
     strategy.onAttackResult(anchor, Cell.cellFlag.hit);
 
     const miss1 = await requestMove();
@@ -158,11 +145,10 @@ describe('HuntTargetStrategy: onAttackResult feedback tests', () => {
     const miss2 = await requestMove();
     strategy.onAttackResult(miss2, Cell.cellFlag.miss);
 
-    const next =  await requestMove();
+    const next = await requestMove();
 
     const isNeighbor = Math.abs(next.x - anchor.x) + Math.abs(next.y - anchor.y) === 1;
 
     expect(isNeighbor).toBe(false);
   });
-  
 });

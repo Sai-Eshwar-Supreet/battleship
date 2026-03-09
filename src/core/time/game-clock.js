@@ -1,79 +1,79 @@
-class GameClock{
-    #timers;
-    #disposed;
+class GameClock {
+  #timers;
+  #disposed;
 
-    constructor(){
-        this.#timers = new Set();
-        this.#disposed = false;
+  constructor() {
+    this.#timers = new Set();
+    this.#disposed = false;
+  }
+
+  get disposed() {
+    return this.#disposed;
+  }
+
+  delay(ms, callback) {
+    if (this.#disposed) {
+      throw new Error('GameClock has been disposed');
     }
 
-    get disposed(){
-        return this.#disposed;
+    if (!Number.isInteger(ms) || ms <= 0) {
+      throw new TypeError('Delay ms should be a positive non-zero integer');
     }
 
-    delay(ms, callback){
-        if(this.#disposed){
-            throw new Error('GameClock has been disposed');
-        }
-
-        if(!Number.isInteger(ms) || ms <= 0){
-            throw new TypeError('Delay ms should be a positive non-zero integer');
-        }
-
-        if(typeof callback !== 'function'){
-            throw new TypeError('Expects callback to be a function');
-        }
-
-        const timerID = setTimeout(() => {
-            this.#timers.delete(timerID);
-            callback();
-        }, ms);
-
-        this.#timers.add(timerID);
-
-        return timerID;
+    if (typeof callback !== 'function') {
+      throw new TypeError('Expects callback to be a function');
     }
 
-    cancel(timerID){
-        if(this.#disposed){
-            throw new Error('GameClock has been disposed');
-        }
+    const timerID = setTimeout(() => {
+      this.#timers.delete(timerID);
+      callback();
+    }, ms);
 
-        if(this.#timers.has(timerID)){
-            clearTimeout(timerID);
-            this.#timers.delete(timerID);
+    this.#timers.add(timerID);
 
-            return true;
-        }
+    return timerID;
+  }
 
-        return false;
+  cancel(timerID) {
+    if (this.#disposed) {
+      throw new Error('GameClock has been disposed');
     }
 
-    cancelAll(){
-        if(this.#disposed){
-            throw new Error('GameClock has been disposed');
-        }
+    if (this.#timers.has(timerID)) {
+      clearTimeout(timerID);
+      this.#timers.delete(timerID);
 
-        for(let timerID of this.#timers){
-            clearTimeout(timerID);
-        }
-
-        this.#timers.clear();
+      return true;
     }
 
-    reset(){
-        for(let timerID of this.#timers){
-            clearTimeout(timerID);
-        }
+    return false;
+  }
 
-        this.#timers.clear();
-        this.#disposed = false;
+  cancelAll() {
+    if (this.#disposed) {
+      throw new Error('GameClock has been disposed');
     }
 
-    dispose(){
-        this.cancelAll();
-        this.#disposed = true;
+    for (let timerID of this.#timers) {
+      clearTimeout(timerID);
     }
+
+    this.#timers.clear();
+  }
+
+  reset() {
+    for (let timerID of this.#timers) {
+      clearTimeout(timerID);
+    }
+
+    this.#timers.clear();
+    this.#disposed = false;
+  }
+
+  dispose() {
+    this.cancelAll();
+    this.#disposed = true;
+  }
 }
 
-export { GameClock }
+export { GameClock };

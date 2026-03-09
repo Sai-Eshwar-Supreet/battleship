@@ -13,171 +13,159 @@ function buildCombatView(width, height) {
   }
 
   const blueprint = {
-  type: "section",
-  classList: ["combat-screen"],
-  children: [
-
-    {
-      type: "header",
-      classList: ["combat-header"],
-      children: [
-        {
-          type: "h1",
-          textContent: "BATTLESHIP",
-        },
-        {
-          type: "p",
-          attributes: {
-            id: "turn-indicator"
-          }
-        }
-      ]
-    },
-
-    {
-      type: "div",
-      classList: ["combat-layout"],
-      children: [
-
-        /* PLAYER SIDE */
-
-        {
-          type: "div",
-          classList: ["fleet-panel"],
-          children: [
-
-            {
-              type: "p",
-              attributes: {
-                id: "player-name-bar"
-              }
+    type: 'section',
+    classList: ['combat-screen'],
+    children: [
+      {
+        type: 'header',
+        classList: ['combat-header'],
+        children: [
+          {
+            type: 'h1',
+            textContent: 'BATTLESHIP',
+          },
+          {
+            type: 'p',
+            attributes: {
+              id: 'turn-indicator',
             },
-
-            {
-              type: "div",
-              classList: ["health-bar-shell"],
-              children: [
-                {
-                  type: "div",
-                  classList: ["health-bar-fill"],
-                  attributes: {
-                    id: "player-health-bar"
-                  }
-                }
-              ]
-            },
-
-            {
-              type: "div",
-              attributes: {
-                id: "player-grid"
-              },
-              classList: ["board"]
-            }
-
-          ]
-        },
-
-        /* COMPUTER SIDE */
-
-        {
-          type: "div",
-          classList: ["fleet-panel"],
-          children: [
-
-            {
-              type: "p",
-              attributes: {
-                id: "computer-name-bar"
-              }
-            },
-
-            {
-              type: "div",
-              classList: ["health-bar-shell"],
-              children: [
-                {
-                  type: "div",
-                  classList: ["health-bar-fill"],
-                  attributes: {
-                    id: "computer-health-bar"
-                  }
-                }
-              ]
-            },
-
-            {
-              type: "div",
-              attributes: {
-                id: "computer-grid"
-              },
-              classList: ["board"]
-            }
-
-          ]
-        }
-
-      ]
-    },
-
-    /* GAME OVER MODAL */
-
-    {
-      type: "dialog",
-      attributes: {
-        id: "game-over-panel"
+          },
+        ],
       },
-      children: [
-        {
-          type: "div",
-          classList: ["main-panel"],
-          children: [
 
-            {
-              type: "h2",
-              attributes: {
-                id: "game-over-title"
-              }
-            },
+      {
+        type: 'div',
+        classList: ['combat-layout'],
+        children: [
+          /* PLAYER SIDE */
 
-            {
-              type: "p",
-              attributes: {
-                id: "game-over-message"
-              }
-            },
-
-            {
-              type: "div",
-              classList: ["modal-buttons"],
-              children: [
-
-                {
-                  type: "button",
-                  textContent: "Restart",
-                  attributes: {
-                    id: "restart-game"
-                  }
+          {
+            type: 'div',
+            classList: ['fleet-panel'],
+            children: [
+              {
+                type: 'p',
+                attributes: {
+                  id: 'player-name-bar',
                 },
+              },
 
-                {
-                  type: "button",
-                  textContent: "Return to Menu",
-                  attributes: {
-                    id: "return-to-menu"
-                  }
-                }
+              {
+                type: 'div',
+                classList: ['health-bar-shell'],
+                children: [
+                  {
+                    type: 'div',
+                    classList: ['health-bar-fill'],
+                    attributes: {
+                      id: 'player-health-bar',
+                    },
+                  },
+                ],
+              },
 
-              ]
-            }
+              {
+                type: 'div',
+                attributes: {
+                  id: 'player-grid',
+                },
+                classList: ['board'],
+              },
+            ],
+          },
 
-          ]
-        }
-      ]
-    }
+          /* COMPUTER SIDE */
 
-  ]
-};
+          {
+            type: 'div',
+            classList: ['fleet-panel'],
+            children: [
+              {
+                type: 'p',
+                attributes: {
+                  id: 'computer-name-bar',
+                },
+              },
+
+              {
+                type: 'div',
+                classList: ['health-bar-shell'],
+                children: [
+                  {
+                    type: 'div',
+                    classList: ['health-bar-fill'],
+                    attributes: {
+                      id: 'computer-health-bar',
+                    },
+                  },
+                ],
+              },
+
+              {
+                type: 'div',
+                attributes: {
+                  id: 'computer-grid',
+                },
+                classList: ['board'],
+              },
+            ],
+          },
+        ],
+      },
+
+      /* GAME OVER MODAL */
+
+      {
+        type: 'dialog',
+        attributes: {
+          id: 'game-over-panel',
+        },
+        children: [
+          {
+            type: 'div',
+            classList: ['main-panel'],
+            children: [
+              {
+                type: 'h2',
+                attributes: {
+                  id: 'game-over-title',
+                },
+              },
+
+              {
+                type: 'p',
+                attributes: {
+                  id: 'game-over-message',
+                },
+              },
+
+              {
+                type: 'div',
+                classList: ['modal-buttons'],
+                children: [
+                  {
+                    type: 'button',
+                    textContent: 'Restart',
+                    attributes: {
+                      id: 'restart-game',
+                    },
+                  },
+
+                  {
+                    type: 'button',
+                    textContent: 'Return to Menu',
+                    attributes: {
+                      id: 'return-to-menu',
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  };
 
   let ui = null;
   let playerBoardUI = null;

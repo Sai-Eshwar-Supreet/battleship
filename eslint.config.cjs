@@ -20,12 +20,13 @@ module.exports = [
     rules: {
       'no-console': 'warn',
       'no-unused-vars': [
-        'error', {
+        'error',
+        {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
-        }
-      ]
+        },
+      ],
     },
   },
   {

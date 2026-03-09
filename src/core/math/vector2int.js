@@ -1,5 +1,5 @@
 /**
- * Represents an immutable 2D integer vector 
+ * Represents an immutable 2D integer vector
  * where +x points right and +y points up.
  */
 
@@ -169,7 +169,7 @@ class Vector2Int {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
     }
 
-    if(min.#x > max.#x || min.#y > max.#y){
+    if (min.#x > max.#x || min.#y > max.#y) {
       throw new RangeError('Invalid bounds: min must be <= max');
     }
 
@@ -190,7 +190,7 @@ class Vector2Int {
       throw new TypeError('Expected vectors min and max to be of type Vector2Int');
     }
 
-    if(min.#x > max.#x || min.#y > max.#y){
+    if (min.#x > max.#x || min.#y > max.#y) {
       throw new RangeError('Invalid bounds: min must be <= max');
     }
 

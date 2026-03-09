@@ -1,60 +1,63 @@
-import { assertEnum } from "../../../core/validation/enum-validation.js";
-import { GameBoard } from "../gameboard.js";
+import { assertEnum } from '../../../core/validation/enum-validation.js';
+import { GameBoard } from '../gameboard.js';
 
-class Player{
-    #name;
-    #type;
-    #board;
-    #strategy;
+class Player {
+  #name;
+  #type;
+  #board;
+  #strategy;
 
-    constructor(name, type, strategy){
-
-        if(typeof name !== 'string'){
-            throw new TypeError('Expects name to be a string');
-        }
-
-        this.#name = name;
-        assertEnum(Player.type, type, 'Player Type');
-        this.#type = type;
-        this.#board = new GameBoard();
-        this.setStrategy(strategy);
+  constructor(name, type, strategy) {
+    if (typeof name !== 'string') {
+      throw new TypeError('Expects name to be a string');
     }
 
-    get name() {
-        return this.#name;
-    }
+    this.#name = name;
+    assertEnum(Player.type, type, 'Player Type');
+    this.#type = type;
+    this.#board = new GameBoard();
+    this.setStrategy(strategy);
+  }
 
-    get type(){
-        return this.#type;
-    }
+  get name() {
+    return this.#name;
+  }
 
-    get board(){
-        return this.#board;
-    }
+  get type() {
+    return this.#type;
+  }
 
-    get health(){
-        return this.#board.getCumulativeHealth();
-    }
+  get board() {
+    return this.#board;
+  }
 
-    setStrategy(strategy){
-        if (!strategy || typeof strategy.requestMove !== 'function' || typeof strategy.onAttackResult !== 'function') {
-            throw new TypeError('Invalid attack strategy');
-        }
-        this.#strategy = strategy;
-    }
-    
-    onAttackResult(move, result){
-        this.#strategy.onAttackResult(move, result);
-    }
+  get health() {
+    return this.#board.getCumulativeHealth();
+  }
 
-    async requestMove(){
-        return await this.#strategy.requestMove();
+  setStrategy(strategy) {
+    if (
+      !strategy ||
+      typeof strategy.requestMove !== 'function' ||
+      typeof strategy.onAttackResult !== 'function'
+    ) {
+      throw new TypeError('Invalid attack strategy');
     }
+    this.#strategy = strategy;
+  }
 
-    static type = Object.freeze({
-        human: 'human',
-        computer: 'computer',
-    });
+  onAttackResult(move, result) {
+    this.#strategy.onAttackResult(move, result);
+  }
+
+  async requestMove() {
+    return await this.#strategy.requestMove();
+  }
+
+  static type = Object.freeze({
+    human: 'human',
+    computer: 'computer',
+  });
 }
 
-export { Player }
+export { Player };

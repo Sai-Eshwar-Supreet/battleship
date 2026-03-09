@@ -1,4 +1,4 @@
-import { deepFreeze } from "../../core/utils/deep-freeze.js";
+import { deepFreeze } from '../../core/utils/deep-freeze.js';
 
 const EASY = deepFreeze({
   id: 'easy',
@@ -18,7 +18,6 @@ const EASY = deepFreeze({
     maxDelayMs: 450,
   },
 });
-
 
 const NORMAL = deepFreeze({
   id: 'normal',
@@ -58,4 +57,4 @@ const HARD = deepFreeze({
   },
 });
 
-export const DIFFICULTY = Object.freeze({EASY, NORMAL, HARD});
+export const DIFFICULTY = Object.freeze({ EASY, NORMAL, HARD });
