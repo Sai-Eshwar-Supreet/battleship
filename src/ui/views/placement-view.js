@@ -1,6 +1,8 @@
 import { createElementRecursively } from "../dom/dom-factory.js";
 import {Vector2Int} from '../../core/math/vector2int.js';
 
+import '../../styles/placement-styles.css';
+
 function buildPlacementView(width, height){
     const root = document.querySelector('#root');
 
@@ -8,61 +10,101 @@ function buildPlacementView(width, height){
         throw new Error('There is no root element in the HTML');
     }
     const blueprint = {
-        type: "div",
-        classList: [],
+        type: "section",
+        classList: ['placement-screen'],
         children: [
             {
-                type: "div",
-                classList: [],
+                type: 'header',
+                classList:['placement-header'],
                 children: [
                     {
-                        type: 'div',
-                        attributes: {
-                            id: 'placement-board',
-                        },
+                        type: 'h2',
+                        classList: ['placement-title'],
+                        textContent: 'Deploy Your Fleet',
                     },
                     {
-                        type: 'div',
-                        attributes: {
-                            id: 'current-ship-display',
-                        },
+                        type: 'p',
+                        classList: ['placement-help'],
+                        textContent: 'Click grid to place ships • Press R to rotate',
                     },
                 ]
             },
             {
                 type: "div",
-                attributes: {
-                    id: 'placement-tools',
-                },
-                classList: [],
+                classList: ['placement-layout'],
                 children: [
                     {
-                        type: 'button',
-                        textContent:'Revert',
-                        dataset: {
-                            action: "placement:reset"
-                        }
+                        type: 'div',
+                        classList: ['placement-board-wrapper'],
+                        children: [
+                            {
+                                type: 'div',
+                                attributes: {
+                                    id: 'placement-board',
+                                },
+                            },
+                        ]
                     },
                     {
-                        type: 'button',
-                        textContent:'Auto place remaining',
-                        dataset: {
-                            action: "placement:auto-place-remaining"
-                        }
-                    },
-                    {
-                        type: 'button',
-                        textContent:'Auto place all',
-                        dataset: {
-                            action: "placement:auto-place-all"
-                        }
-                    },
-                    {
-                        type: 'button',
-                        textContent:'Confirm',
-                        dataset: {
-                            action: "placement:confirm"
-                        }
+                        type: 'div',
+                        classList: ['placement-panel'],
+                        children: [
+                            {
+                                type: 'div',
+                                classList: ['ship-preview-panel'],
+                                children: [
+                                    {
+                                      type: 'span',
+                                      textContent: 'Current ship',
+                                      classList: ['preview-label'],  
+                                    },
+                                    {
+                                        type: 'div',
+                                        attributes: {
+                                            id: 'current-ship-display',
+                                        },
+                                    },
+                                ],
+                            },
+                            {
+                                type: 'div',
+                                classList: ['placement-controls'],
+                                attributes: {
+                                    id: 'placement-tools',
+                                },
+                                children: [
+                                    {
+                                        type: 'button',
+                                        textContent:'Revert',
+                                        dataset: {
+                                            action: "placement:revert"
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        textContent:'Auto place remaining',
+                                        dataset: {
+                                            action: "placement:auto-place-remaining"
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        textContent:'Auto place all',
+                                        dataset: {
+                                            action: "placement:auto-place-all"
+                                        }
+                                    },
+                                    {
+                                        type: 'button',
+                                        classList: ['confirm-btn'],
+                                        textContent:'Confirm',
+                                        dataset: {
+                                            action: "placement:confirm"
+                                        }
+                                    },
+                                ]
+                            },
+                        ]
                     },
                 ]
             },
@@ -77,7 +119,7 @@ function buildPlacementView(width, height){
     let currentHover = null;
     let listeners = Object.freeze({
         'placement:rotate': [],
-        'placement:reset': [],
+        'placement:revert': [],
         'placement:auto-place-all': [],
         'placement:auto-place-remaining': [],
         'placement:confirm': [],
@@ -263,6 +305,14 @@ function buildPlacementView(width, height){
         } 
     }
 
+    function updateRotation(orientation){
+        if(typeof orientation !== 'string'){
+            throw new TypeError('Expects orientation of type string');
+        }
+
+        currentShipDisplay.dataset.orientation = orientation;
+    }
+
     function unmount(){
         if(!ui){
             throw new Error('Unmount request is invalid');
@@ -290,7 +340,7 @@ function buildPlacementView(width, height){
         listenerList.push(callback);
     }
 
-    return {mount, unmount, updateHover, resetHover, resetBoardState, placeShip, updateCurrentShip, on};
+    return {mount, unmount, updateRotation, updateHover, resetHover, resetBoardState, placeShip, updateCurrentShip, on};
 }
 
 export {buildPlacementView};

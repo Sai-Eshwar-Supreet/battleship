@@ -120,10 +120,6 @@ body{
     inset 0 0 10px rgba(255,255,255,0.6);
 }
 
-#current-ship-display{
-    display: flex;
-}
-
 /* Cells */
 
 .cell{
@@ -179,14 +175,39 @@ body{
     border-radius:4px;
 }
 
-/* Placement */
+/* Placement controls */
 
-.valid-place{
-    background-color:green;
+
+.placement-controls{
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
-.invalid-place{
-    background-color:red;
+
+.placement-controls button{
+  padding:8px 14px;
+  
+  border:none;
+  border-radius:8px;
+
+  background-color:#1e293b;
+  color:#e2e8f0;
+
+  cursor:pointer;
+
+  transition: background-color 0.15s ease;
 }
+.placement-controls button:hover{
+  background-color:#334155;
+}
+.placement-controls .confirm-btn{
+  background-color:#22c55e;
+  color:#022c22;
+}
+.placement-controls .confirm-btn:hover{
+  background-color:#16a34a;
+}
+
 
 /* Dialog */
 

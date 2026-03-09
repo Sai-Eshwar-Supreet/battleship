@@ -15,7 +15,7 @@ function createPlacementState(ctx){
         placementView.mount();
 
         placementView.on('placement:rotate', toggleDirection);
-        placementView.on('placement:reset', resetPlacement);
+        placementView.on('placement:revert', resetPlacement);
         placementView.on('placement:auto-place-all', autoPlaceAll);
         placementView.on('placement:auto-place-remaining', autoPlaceRemaining);
         placementView.on('placement:confirm', confirmPlacement);
@@ -32,14 +32,18 @@ function createPlacementState(ctx){
         placementSystem.startPlacement(ctx.players[Player.type.human].board, ctx.buildFleet(), Date.now() * 2);
         const length = placementSystem.getCurrentShip().length;
         placementView.updateCurrentShip(length);
+        
+        placementView.updateRotation(direction.equals(Vector2Int.up)? 'vertical' : 'horizontal');
     }
 
     function toggleDirection(origin){
+        if(!origin) return;
         let placementData = placementSystem.getPlacementData(origin, direction);
         placementView.resetHover(placementData?.chain);
 
         direction = direction.equals(Vector2Int.right)? Vector2Int.up : Vector2Int.right;
         
+        placementView.updateRotation(direction.equals(Vector2Int.up)? 'vertical' : 'horizontal');
         
         placementData = placementSystem.getPlacementData(origin, direction);
         placementView.updateHover(placementData?.chain, placementData?.canPlace);
