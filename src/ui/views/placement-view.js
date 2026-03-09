@@ -1,8 +1,6 @@
 import { createElementRecursively } from "../dom/dom-factory.js";
 import {Vector2Int} from '../../core/math/vector2int.js';
 
-import '../../styles/placement-styles.css';
-
 function buildPlacementView(width, height){
     const root = document.querySelector('#root');
 
@@ -10,106 +8,104 @@ function buildPlacementView(width, height){
         throw new Error('There is no root element in the HTML');
     }
     const blueprint = {
-        type: "section",
-        classList: ['placement-screen'],
-        children: [
+  type: "section",
+  classList: ["placement-screen"],
+  children: [
+    {
+      type: "header",
+      classList: ["placement-header"],
+      children: [
+        {
+          type: "h1",
+          classList: ["placement-title"],
+          textContent: "Deploy Your Fleet",
+        },
+        {
+          type: "p",
+          classList: ["placement-help"],
+          textContent: "Click grid to place ships • Press R to rotate",
+        },
+      ],
+    },
+
+    {
+      type: "div",
+      classList: ["placement-layout"],
+      children: [
+
+        {
+          type: "div",
+          classList: ["placement-board-area"],
+          children: [
             {
-                type: 'header',
-                classList:['placement-header'],
-                children: [
-                    {
-                        type: 'h2',
-                        classList: ['placement-title'],
-                        textContent: 'Deploy Your Fleet',
-                    },
-                    {
-                        type: 'p',
-                        classList: ['placement-help'],
-                        textContent: 'Click grid to place ships • Press R to rotate',
-                    },
-                ]
+              type: "div",
+              attributes: {
+                id: "placement-board",
+              },
+              classList: ["board"],
             },
+          ],
+        },
+
+        {
+          type: "aside",
+          classList: ["placement-panel"],
+          children: [
+
             {
-                type: "div",
-                classList: ['placement-layout'],
-                children: [
-                    {
-                        type: 'div',
-                        classList: ['placement-board-wrapper'],
-                        children: [
-                            {
-                                type: 'div',
-                                attributes: {
-                                    id: 'placement-board',
-                                },
-                            },
-                        ]
-                    },
-                    {
-                        type: 'div',
-                        classList: ['placement-panel'],
-                        children: [
-                            {
-                                type: 'div',
-                                classList: ['ship-preview-panel'],
-                                children: [
-                                    {
-                                      type: 'span',
-                                      textContent: 'Current ship',
-                                      classList: ['preview-label'],  
-                                    },
-                                    {
-                                        type: 'div',
-                                        attributes: {
-                                            id: 'current-ship-display',
-                                        },
-                                    },
-                                ],
-                            },
-                            {
-                                type: 'div',
-                                classList: ['placement-controls'],
-                                attributes: {
-                                    id: 'placement-tools',
-                                },
-                                children: [
-                                    {
-                                        type: 'button',
-                                        textContent:'Revert',
-                                        dataset: {
-                                            action: "placement:revert"
-                                        }
-                                    },
-                                    {
-                                        type: 'button',
-                                        textContent:'Auto place remaining',
-                                        dataset: {
-                                            action: "placement:auto-place-remaining"
-                                        }
-                                    },
-                                    {
-                                        type: 'button',
-                                        textContent:'Auto place all',
-                                        dataset: {
-                                            action: "placement:auto-place-all"
-                                        }
-                                    },
-                                    {
-                                        type: 'button',
-                                        classList: ['confirm-btn'],
-                                        textContent:'Confirm',
-                                        dataset: {
-                                            action: "placement:confirm"
-                                        }
-                                    },
-                                ]
-                            },
-                        ]
-                    },
-                ]
+              type: "div",
+              classList: ["ship-preview-panel"],
+              children: [
+                {
+                  type: "span",
+                  classList: ["preview-label"],
+                  textContent: "Current Ship",
+                },
+                {
+                  type: "div",
+                  attributes: {
+                    id: "current-ship-display",
+                  },
+                },
+              ],
             },
-        ],
-    };
+
+            {
+              type: "div",
+              attributes: {
+                id: "placement-tools",
+              },
+              classList: ["placement-controls"],
+              children: [
+                {
+                  type: "button",
+                  textContent: "Revert",
+                  dataset: { action: "placement:revert" },
+                },
+                {
+                  type: "button",
+                  textContent: "Auto place remaining",
+                  dataset: { action: "placement:auto-place-remaining" },
+                },
+                {
+                  type: "button",
+                  textContent: "Auto place all",
+                  dataset: { action: "placement:auto-place-all" },
+                },
+                {
+                  type: "button",
+                  classList: ["confirm-btn"],
+                  textContent: "Confirm",
+                  dataset: { action: "placement:confirm" },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
 
     let ui = null;
     let placementTools;
@@ -117,6 +113,7 @@ function buildPlacementView(width, height){
     let cellGrid = [];
     let currentShipDisplay;
     let currentHover = null;
+    let confirmButton = null;
     let listeners = Object.freeze({
         'placement:rotate': [],
         'placement:revert': [],
@@ -137,6 +134,7 @@ function buildPlacementView(width, height){
         placementTools = ui.querySelector('#placement-tools');
         placementBoard = ui.querySelector('#placement-board');
         currentShipDisplay = ui.querySelector('#current-ship-display');
+        confirmButton = ui.querySelector('.confirm-btn');
 
 
         placementTools.addEventListener('click', handleToolUse);
@@ -265,7 +263,7 @@ function buildPlacementView(width, height){
     function resetBoardState(){
         for(let row of cellGrid){
             for(let cell of row){
-                cell.classList.remove('ship-unit')
+                cell.classList.remove('ship-unit', 'valid-place', 'invalid-place');
             }
         }
     }
@@ -296,7 +294,7 @@ function buildPlacementView(width, height){
     }
 
     function updateCurrentShip(length){
-        currentShipDisplay.innerHTML = null;
+        currentShipDisplay.innerHTML = '';
         for(let i =0; i < length; i++){
             const ship = document.createElement('div');
             ship.classList.add('ship-unit');
@@ -324,10 +322,12 @@ function buildPlacementView(width, height){
         placementBoard = null;
         cellGrid = [];
         currentShipDisplay = null;
+        confirmButton = null;
         for(let listenerId of Object.keys(listeners)){
             listeners[listenerId].length = 0; 
         }
-        
+
+        window.removeEventListener('keydown', handleRotatePress);
     }
 
     function on(listenerId, callback){
@@ -340,7 +340,14 @@ function buildPlacementView(width, height){
         listenerList.push(callback);
     }
 
-    return {mount, unmount, updateRotation, updateHover, resetHover, resetBoardState, placeShip, updateCurrentShip, on};
+    function setConfirm(active){
+        if(typeof active !== 'boolean'){
+            throw new TypeError('Expects active of type boolean');
+        }
+        confirmButton.disabled = !active;
+    }
+
+    return {mount, unmount, setConfirm, updateRotation, updateHover, resetHover, resetBoardState, placeShip, updateCurrentShip, on};
 }
 
 export {buildPlacementView};

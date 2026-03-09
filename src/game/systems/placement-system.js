@@ -22,6 +22,10 @@ class PlacementSystem {
     this.reset();
   }
 
+  get state(){
+    return this.#state;
+  }
+
   startPlacement(board, ships, seed) {
     if (this.#state !== PLACEMENT_STATE.idle) {
       throw new TypeError('Placement already in progress');

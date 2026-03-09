@@ -34,6 +34,7 @@ function createPlacementState(ctx){
         placementView.updateCurrentShip(length);
         
         placementView.updateRotation(direction.equals(Vector2Int.up)? 'vertical' : 'horizontal');
+        placementView.setConfirm(placementSystem.state === 'ready');
     }
 
     function toggleDirection(origin){
@@ -54,24 +55,17 @@ function createPlacementState(ctx){
         placementView.resetBoardState();
         const length = placementSystem.getCurrentShip()?.length;
         placementView.updateCurrentShip(length);
+        placementView.setConfirm(placementSystem.state === 'ready');
     }
 
     function autoPlaceAll(){
         placementView.resetBoardState();
-        placementSystem.autoPlaceAll((chain) => {
-            placementView.placeShip(chain)
-            const length = placementSystem.getCurrentShip()?.length;
-            placementView.updateCurrentShip(length);
-        });
+        placementSystem.autoPlaceAll(handleShipPlacement);
 
 
     }
     function autoPlaceRemaining(){
-        placementSystem.autoPlaceRemaining((chain) => {
-            placementView.placeShip(chain)
-            const length = placementSystem.getCurrentShip()?.length;
-            placementView.updateCurrentShip(length);
-        });
+        placementSystem.autoPlaceRemaining(handleShipPlacement);
     }
     function confirmPlacement(){
         placementSystem.finalizePlacement();
@@ -90,13 +84,16 @@ function createPlacementState(ctx){
     }
 
     function placeShip(origin){
-        placementSystem.placeCurrentShip(origin, direction, (chain) => {
-            placementView.placeShip(chain)
-            const length = placementSystem.getCurrentShip()?.length;
-            placementView.updateCurrentShip(length);
-        });
+        placementSystem.placeCurrentShip(origin, direction, handleShipPlacement);
     }
     
+    function handleShipPlacement(chain) {
+        placementView.placeShip(chain);
+        placementView.setConfirm(placementSystem.state === 'ready');
+        const length = placementSystem.getCurrentShip()?.length;
+        placementView.updateCurrentShip(length);
+    }
+
     function update(){
         if(placementSystem?.isPlacementComplete()){
             ctx.requestState('COMBAT');

@@ -8,78 +8,113 @@ function buildMenuView(playerName, difficulty){
     }
 
     const blueprint = {
-        type: "div",
-        classList: [],
-        children: [
+  type: "section",
+  classList: ["menu-screen"],
+  children: [
+    {
+      type: "div",
+      classList: ["menu-card"],
+      children: [
+        {
+          type: "h1",
+          classList: ["menu-title"],
+          textContent: "BATTLESHIP"
+        },
+
+        {
+          type: "form",
+          attributes: {
+            id: "menu-form"
+          },
+          classList: ["menu-form"],
+          children: [
+
             {
-                type: "form",
-                attributes: {
-                    id: 'menu-form',
+              type: "div",
+              classList: ["form-group"],
+              children: [
+                {
+                  type: "label",
+                  attributes: {
+                    for: "player-name"
+                  },
+                  textContent: "Player Name"
                 },
-                classList: [],
-                children: [
+                {
+                  type: "input",
+                  attributes: {
+                    id: "player-name",
+                    type: "text",
+                    name: "playerName",
+                    value: playerName,
+                    placeholder: "Enter your name"
+                  }
+                }
+              ]
+            },
+
+            {
+              type: "div",
+              classList: ["form-group"],
+              children: [
+                {
+                  type: "label",
+                  attributes: {
+                    for: "difficulty-select"
+                  },
+                  textContent: "Difficulty"
+                },
+                {
+                  type: "select",
+                  attributes: {
+                    id: "difficulty-select",
+                    name: "difficulty"
+                  },
+                  children: [
                     {
-                        type: "h1",
-                        textContent: "BATTLESHIP",
+                      type: "option",
+                      textContent: "Easy",
+                      attributes: {
+                        value: "easy",
+                        selected: Boolean(difficulty.id === "easy")
+                      }
                     },
                     {
-                        type: "input",
-                        attributes: {
-                            id: "player-name",
-                            type: "text",
-                            name: "playerName",
-                            value: playerName,
-                        }
+                      type: "option",
+                      textContent: "Normal",
+                      attributes: {
+                        value: "normal",
+                        selected: Boolean(difficulty.id === "normal")
+                      }
                     },
                     {
-                        type: "select",
-                        attributes: {
-                            id: "difficulty-select",
-                            name: "difficulty",
-                        },
-                        children: [
-                            {
-                                type: "button",
-                                children: [
-                                    {
-                                        type: "selectedcontent"
-                                    }
-                                ]
-                            },
-                            {
-                                type: "option",
-                                textContent: "Easy",
-                                attributes: {
-                                    value: "easy",
-                                    selected: Boolean(difficulty.id === 'easy')
-                                }
-                            },
-                            {
-                                type: "option",
-                                textContent: "Normal",
-                                attributes: {
-                                    value: "normal",
-                                    selected: Boolean(difficulty.id === 'normal')
-                                }
-                            },
-                            {
-                                type: "option",
-                                textContent: "Hard",
-                                attributes: {
-                                    value: "hard",
-                                    selected: Boolean(difficulty.id === 'hard')
-                                }
-                            },
-                        ]
-                    },
-                    {
-                        type: "button",
-                        textContent: "Start Game",
-                    },
-                ]
+                      type: "option",
+                      textContent: "Hard",
+                      attributes: {
+                        value: "hard",
+                        selected: Boolean(difficulty.id === "hard")
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+
+            {
+              type: "button",
+              classList: ["start-button"],
+              textContent: "Start Game",
+              attributes: {
+                type: "submit"
+              }
             }
-        ],
-    };
+
+          ]
+        }
+      ]
+    }
+  ]
+};
 
     let ui = null;
     let menuForm;
